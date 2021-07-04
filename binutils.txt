@@ -1,0 +1,40 @@
+cd o
+mkdir binutils-2.34
+cd binutils-2.34
+$HOME/s/binutils-2.34/configure -verbose -prefix=$NAME
+
+This is kinda pointless, as gas/ld are not supported.
+
+$HOME/s/binutils-2.34/bfd/compress.c: In function 'bfd_get_full_section_contents':
+$HOME/s/binutils-2.34/bfd/compress.c:268:4: error: expected ')' before 'PRIx64'
+$HOME/s/binutils-2.34/bfd/compress.c:269:4: warning: conversion lacks type at end of format [-Wformat]
+$HOME/s/binutils-2.34/bfd/compress.c:269:4: warning: too many arguments for format [-Wformat-extra-args]
+$HOME/s/binutils-2.34/bfd/compress.c:279:6: error: expected ')' before 'PRIx64'
+$HOME/s/binutils-2.34/bfd/compress.c:280:5: warning: conversion lacks type at end of format [-Wformat]
+$HOME/s/binutils-2.34/bfd/compress.c:280:5: warning: too many arguments for format [-Wformat-extra-args]
+
+zlib has been seen to be misconfigured before (notice compress.c).
+It was not checked why, but..this is not that. This is missing PRIx64.
+
+vi $HOME/s/binutils-2.34/*/sysdep.h
+
+and place at the top of each:
+
+#define PRIx64 "lx"
+
+or see pyosf.h, i.e.:
+/* C99 support is incomplete. */
+#if defined(__osf__) && defined(__alpha__) && defined(__arch64__)
+#define PRId64 "ld"
+#define PRIi64 "li"
+#define PRIo64 "lo"
+#define PRIu64 "lu"
+#define PRIx64 "lx"
+#endif
+
+Those are lowercase L for long.
+Double lowercase ll also works instead of single lowercase l
+
+use colon w to save, colon n to move to next file, colon q to quit.
+
+TODO: Submit better patch upstream.
