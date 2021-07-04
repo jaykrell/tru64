@@ -1,0 +1,56 @@
+Add the DEC support here:
+
+/* Terse sized type definitions.  */
+#if defined(_MSC_VER) || defined(__sgi) || defined(__SUNPRO_C) || defined(__DECC) || defined(__DECCXX)
+
+#if (defined(_MSC_VER) && !defined(__clang__)) || defined(__DECC) || defined(__DECCXX)
+#define __attribute__(X)
+#endif
+
+inline assembly:
+
+Any chance of using separate assembly files?
+I realize it ruins inlining...
+Actually the compiler has a decent looking inline assembly functionality.
+I can get back you on this hopefully.
+
+libtool: compile:  cc -DHAVE_CONFIG_H -I. -I/usr/users/jay/s/libffi-3.3 -I. -I/usr/users/jay/s/libffi-3.3/include -Iinclude -I/usr/users/jay/s/libffi-3.3/src -pthread -c99 -warn all -c /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c  -DPIC -o src/alpha/.libs/ffi.o
+cc: Error: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 55: Missing ")". (closeparen)
+  asm("lds %0,%1" : "=f"(ret) : "m"(*(UINT32 *)ptr));
+------------------^
+cc: Error: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 62: Missing ")". (closeparen)
+  asm("sts %1,%0" : "=m"(*(UINT32 *)ptr) : "f"(val));
+------------------^
+cc: Error: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 354: Missing ";". (nosemi)
+  asm volatile ("call_pal 0x86" : : : "memory");
+------^
+
+math on void*:
+
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 244: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+  frame += cif->bytes;
+--^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 299: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+          argp[argn + 1] = extend_basic_type(valp + size, type, argn + 1);
+---------------------------------------------^
+cc: Info: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 342: In this statement, compatibility of a pointer to void and a pointer to a function is not portable under the C standard. (mixfuncvoid)
+  *(void **) &tramp[4] = ffi_closure_osf;
+--^
+cc: Info: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 367: In this statement, "ffi_go_closure_osf" of type "pointer to function () returning void", is being converted to "pointer to void".  Such a cast is not permitted by the standard. (nonstandcast)
+  closure->tramp = (void *)ffi_go_closure_osf;
+---------------------------^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 384: In this statement, the referenced type of the pointer value "alloca(...)" is "char", which is not compatible with "pointer to void". (ptrmismatch)
+  avalue = alloca(cif->nargs * sizeof(void *));
+--^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 470: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+              memcpy(valp + size, valp + 8, size);
+---------------------^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 470: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+              memcpy(valp + size, valp + 8, size);
+----------------------------------^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 482: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+                sts(valp + 4, argp[argn + 1 - 6]);
+--------------------^
+cc: Warning: /usr/users/jay/s/libffi-3.3/src/alpha/ffi.c, line 484: In this statement, performing pointer arithmetic on a pointer to void or a pointer to function is not allowed.  The compiler will treat the type as if it were pointer to char. (badptrarith)
+                *(UINT32 *)(valp + 4) = argp[argn + 1];
+----------------------------^
