@@ -37,4 +37,14 @@ Double lowercase ll also works instead of single lowercase l
 
 use colon w to save, colon n to move to next file, colon q to quit.
 
+
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I/usr/users/jay/s/binutils-2.34/libctf -D_GNU_SOURCE -I/usr/users/jay/s/binutils-2.34/libctf -I/usr/users/jay/s/binutils-2.34/libctf/../include -I/usr/users/jay/s/binutils-2.34/libctf/../bfd -I../bfd -std=gnu99 -Wall -W -Wall -Wno-narrowing -Wwrite-strings -Wmissing-format-attribute -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition -pedantic -Wno-long-long -I/usr/users/jay/s/binutils-2.34/libctf/../zlib -g -O2 -MT ctf-create.lo -MD -MP -MF .deps/ctf-create.Tpo -c /usr/users/jay/s/binutils-2.34/libctf/ctf-create.c -o ctf-create.o
+/usr/users/jay/s/binutils-2.34/libctf/ctf-create.c: In function 'ctf_add_function':
+/usr/users/jay/s/binutils-2.34/libctf/ctf-create.c:1067:32: error: 'EOVERFLOW' undeclared (first use in this function)
+/usr/users/jay/s/binutils-2.34/libctf/ctf-create.c:1067:32: note: each undeclared identifier is reported only once for each function it appears in
+make[3]: *** [Makefile:586: ctf-create.lo] Error 1
+make[3]: Leaving directory '/usr/users/jay/o/binutils/libctf'
+make[2]: *** [Makefile:443: all] Error 2
+mak
+
 TODO: Submit better patch upstream.

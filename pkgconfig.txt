@@ -1,0 +1,14 @@
+configure CC=cc CFLAGS="-pthread -c99"
+
+Making all in .
+make[6]: Entering directory '/usr/users/jay/o/pkgconfig/glib/glib'
+  CC       libglib_2_0_la-glib-init.lo
+cc: Error: /usr/users/jay/s/pkg-config-0.29.1/glib/glib/glib-init.c, line 284: #error Your platform/compiler is missing constructor support (errormessage)
+# error Your platform/compiler is missing constructor support
+--^
+make[6]: *** [Makefile:1480: libglib_2_0_la-glib-init.lo] Error 1
+make[6
+
+Have you considered, and would you accept patches that do, leveraging C++ for this functionality?
+
+gcc gets past this.

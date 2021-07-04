@@ -35,31 +35,35 @@ Also:
  $ cxx -oldcxx 1.o
 => success
 
- From here we have already built:
+From here I have built, at least:
+ tar (1.34)                           important to extract source
+ make current release (4.3)           ?important for handling makefiles, esp. for out of tree builds?
+   bootstrap first make 3.81?
+ bash current release (5.1.8)         possibly important?
+ gcc 3.4.6                            very useful? or try vendor cc more?; does not require gmp/mpfr/mpc; not much worse than 4.7.4?
+ gcc 4.7.4                            latest gcc release that supports tru64
+ tcl current release (8.6)            for running gcc tests eventually
+ sed current release (4.8)            suspected would fix a problem but turned out not relevant
+ m4 current release (1.4.18)          for eventual autoconf
+ gawk current 5.1.0                   for gcc option parsing
+ python 2.7                           for my own build scripts; configure -disable-ipv6
+ xz current 5.2.5                     to decompress source (could be done on other hosts)
+ gzip current 1.10                    to decompress source (could be done on other hosts? vendor works?)
+ bzip2 current 1.0.8                  ditto?
+ diff current 3.7                     some test harness seemed to fail with vendor diff
+ gdb old 7.4                          (newer requires a more capable C++ compiler, this version was chosen "randomly" and work)
+ iconv current 1.16                   wanted by something?
+ gettext current 0.19.8.1             popular dependency? optional?
+ gmp versions? 4.3.2 ?and? 6.2.1?     used by newer gcc
+ mpfr versions? 2.4.2 ?and? 4.1.0?    used by newer gcc
+ mpc version? 0.8.1 ?and? 1.2.1?      used by newer gcc
+ libtool 2.4.6                        dependency of guile?
+ nettle                               for eventual openssl/openssh
+ pkgconfig                            wanted by something? (guile?) -with-internal-glib
+ libunicodestring                     wanted by something? (guile?)
+ grep current 3.6
 
-At least:
- bash current release (5.1.8)
- tar (1.34)
- make current release (4.3)
- gcc 3.4.6
- gcc 4.7.4
- tcl current release (8.6)
- sed current release (4.8)
- m4 current release (1.4.18)
- python 2.7
- xz
- gzip
- diff
- bzip2
- gdb 7.4
- iconv
- gettext
- gmp
- mpfr
- mpc
- libtool
-
- and much more
+ and more
 
 CC=cc CFLAGS="-pthread -c99" are good parameters to configure for native cc.
 
@@ -185,11 +189,15 @@ Challenges and work remains:
  - Gcc 4.7 is the last release with Tru64 support.
  - Gcc 4.8 is the first C++11 compiler.
  - Binutils is supported or not?
- - gnutls, openssl, ssh, wget, pkgconfig
- - git
+ - gnutls
+ - openssl
+ - ssh
+ - wget
+ - git (difficult)
  - guile
  - expect
  - Use native cc/cxx more and report patches upstream.
+ - cmake (requires fairly new C++)
 
 So the present situation is perhaps: no host, no target, no cross build.
 
