@@ -11,4 +11,19 @@ make[6
 
 Have you considered, and would you accept patches that do, leveraging C++ for this functionality?
 
-gcc gets past this.
+gcc gets past this. Still use CFLAGS=-pthread
+
+
+
+
+/usr/users/jay/s/pkg-config-0.29.1/glib/glib/genviron.c: In function 'g_setenv':
+/usr/users/jay/s/pkg-config-0.29.1/glib/glib/genviron.c:306:3: error: implicit declaration of function 'setenv' [-Werror=implicit-function-declaration]
+/usr/users/jay/s/pkg-config-0.29.1/glib/glib/genviron.c: In function 'g_unsetenv':
+/usr/users/jay/s/pkg-config-0.29.1/glib/glib/genviron.c:363:3: error: implicit declaration of function 'unsetenv' [-Werror=implicit-function-declaration]
+cc1: some warnings being treated as errors
+make[6]: *** [Mak
+
+patches coming
+The declarations are in stdlib.h under ifdef _BSD.
+ int setenv (const char*, const char*, int);
+ void unsetenv (const char *);

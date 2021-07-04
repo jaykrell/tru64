@@ -67,6 +67,11 @@ From here I have built, at least:
 
 CC=cc CFLAGS="-pthread -c99" are good parameters to configure for native cc.
 
+CFLAGS=-pthread is good for gcc also
+e.g. otherwise:
+$HOME/s/pkg-config-0.29.1/glib/glib/deprecated/gthread.h:133:3: error: unknown type name 'pthread_mutex_t'
+$HOME/s/pkg-config-0.29.1/glib/glib/deprecated/gthread.h:163:5: error: unknown type name 'pthread_t'
+
 After initially groveling for various source, apt-get source was settled upon
 as a good source for source.
 
