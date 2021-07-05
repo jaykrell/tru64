@@ -1,0 +1,20 @@
+gcc3 is useful for building gcc4
+It does not require gmp,mpfr,mpc.
+
+gcc is very important because much software cannot be built with native cc.
+
+Perhaps gcc3 suffces for most code also.
+
+Maybe CFLAGS=-pthread -c99 is a good idea, but maybe not.
+-c99 probably causes problems, it ends up passed to xgcc and errors.
+
+Let's try:
+
+    mkdir o
+    cd o
+    mkdir gcc-3.4.6
+    cd    gcc-3.4.6
+    nohup sh -c "CFLAGS=-pthread CC=cc $HOME/s/gcc-3.4.6/configure -prefix=$HOME/gcc-3.4.6 -verbose -disable-nls -disable-shared -enable-static && make && make install" &
+    tail -f nohup.out
+
+Do this after building GNU make and with GNU make in $PATH

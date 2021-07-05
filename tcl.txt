@@ -1,34 +1,48 @@
-tcl 8.6.11 on Tru64 with native cc vs. inline.
+tcl 8.6.11 on Tru64 with native cc.
 
-This is wierd.
-It is a C99 compiler but sometimes rejects inline.
-If I preprocess first, it works (I tried just one case).
+Tcl passes -std1, which means c89, so there are errors for many/all uses of "inline".
 
-I'm removing inline as I go.
+It should pass -c99 instead.
 
-Static + a hopefully otherwise decent compiler suffices.
+Change this in unix/configure.
 
-gcc also works.
+Though a decent compiler doesn't need the inline, given static.
 
-cc: Error: /usr/users/jay/s/tcl8.6.11/generic/regcomp.c, line 153:
-   The function "isconstraintarc" has internal linkage, occurs in a context that requires its definition, and has no definition. (missingfunc)
-static int      isconstraintarc(struct arc *);
-----------------^
+Also:
 
-cc: Error: /usr/users/jay/s/tcl8.6.11/generic/tclCompile.h, line 1165: Missing ";". (nosemi)
-static inline void
---------------^
-cc: Error: /usr/users/jay/s/tcl8.6.11/generic/tclCompile.h, line 1172: Missing ";". (nosemi)
-static inline void
----------
 
-cc: Error: /usr/users/jay/s/tcl8.6.11/generic/tclBasic.c, line 4894: Missing ";". (nosemi)
-static inline Command *
-
-and so on, repeatedly.
-
-cc: Error: /usr/users/jay/s/tcl8.6.11/generic/tclCmdMZ.c, line 5262: Invalid expression. (badexpr)
+cc: Error: $HOME/s/tcl8.6.11/generic/tclCmdMZ.c, line 5262: Invalid expression. (badexpr)
     finallyObj = finally ? objv[finally] : 0;
 
-#undef finally after all the includes or use a different identifier
-(try and leave potentially also)
+Because the system headers define try/leave/finally for exception handling.
+You can #undef finally after the inlines, or use a different identifier.
+
+I believe gcc also just works and is easy enough to build.
+
+$ diff $HOME/s/tcl8.6.11/unix/configure.orig $HOME/s/tcl8.6.11/unix/configure
+2187c2187
+< for ac_arg in "" -qlanglvl=ansi -std1 -Ae "-Aa -D_HPUX_SOURCE" "-Xc -D__EXTENSIONS__"
+---
+> for ac_arg in "" -qlanglvl=ansi -c99 -Ae "-Aa -D_HPUX_SOURCE" "-Xc -D__EXTENSIONS__"
+8118c8118
+<               CFLAGS="$CFLAGS -DHAVE_TZSET -std1 -ieee"
+---
+>               CFLAGS="$CFLAGS -DHAVE_TZSET -c99 -ieee"
+
+There are actually a bunch more of the -std1, replace them all.
+
+$ diff -u  $HOME/s/tcl8.6.11/generic/tclCmdMZ.c{.orig,}
+--- $HOME/s/tcl8.6.11/generic/tclCmdMZ.c.orig  2021-07-05 19:21:00 -0400
++++ $HOME/s/tcl8.6.11/generic/tclCmdMZ.c       2021-07-05 19:21:11 -0400
+@@ -21,6 +21,8 @@
+ #include "tclRegexp.h"
+ #include "tclStringTrim.h"
+
++#undef finally
++
+ static inline Tcl_Obj *        During(Tcl_Interp *interp, int resultCode,
+                            Tcl_Obj *oldOptions, Tcl_Obj *errorInfo);
+ static Tcl_NRPostProc  SwitchPostProc;
+
+nohup sh -c "$HOME/s/tcl8.6.11/unix/configure -prefix=$HOME -enable-static -disable-shared -disable-nls -verbose CC=cc CFLAGS=\"-pthread -c99\" && make && make install" &
+tail -f nohup.out
