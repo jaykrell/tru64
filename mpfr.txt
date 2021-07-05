@@ -1,0 +1,13 @@
+Current mpfr 4.1.0 cannot be built with native cc:
+
+"
+cc: Error: /usr/users/jay/s/gcc-370d8a3d6bd6f72598eed3474d2817b1af77d961/mpfr/src/get_d.c, line 151: 
+  In this statement, the libraries on this platform do not yet support compile-time evaluation of the constant expression "(double)0.0/0.0". (constfoldns)
+  return MPFR_DBL_NAN;
+"
+
+Likely solution is to build gcc 3.4 (without mpfr) and then gcc 4 or newer with that.
+
+Using an older mpfr might also work.
+
+Or patch mpfr here.
