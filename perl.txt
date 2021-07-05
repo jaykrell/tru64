@@ -20,4 +20,6 @@ There are many warnings btw, about bitfields not being int, signed, unsigned, or
 #endif
                 ) {
 
-Remove the last right paren in the #if please.
+Remove the last right paren in the #if.
+
+Upstream fix: https://github.com/Perl/perl5/pull/18962
