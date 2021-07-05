@@ -24,10 +24,13 @@
  */
 #if defined(__osf__) && defined(__alpha__) && defined(__arch64__)
 
+#define __STDC_CONSTANT_MACROS 1
+#define __STDC_LIMIT_MACROS 1
 #undef _ISO_C_SOURCE
-#define _ISO_C_SOURCE 19990
+#define _ISO_C_SOURCE 199901
 #define _OSF_SOURCE
 #undef _XOPEN_SOURCE_EXTENDED
+#include <sys/types.h>
 #include <grp.h>
 #include <signal.h>
 #include <unistd.h>
@@ -91,9 +94,9 @@ typedef unsigned long uintmax_t;
 
 /* This version may not work in an .so. Another version is in newer gnulib.
 * Place this in getprogname.c as needed. It occurs in many programs.
-extern char* __Argv;
+extern char** __Argv;
 
-char const* last_component (const char*)
+char const* last_component (const char*);
 
 char const* getprogname (void)
 {

@@ -211,3 +211,5 @@ But it remains to be seen:
  - Adding support to binutils would make future bootstraps easier.
  - Without binutils support, we likely have to patch gcc 4.8 at a minimum.
  - Support was removed in gcc 4.8.
+
+http://www2.phys.canterbury.ac.nz/dept/docs/manuals/unix/DEC_5.0a_Docs/ACRO_SUP/OBJSPEC.PDF

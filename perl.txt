@@ -1,0 +1,23 @@
+makefile:253: warning: ignoring prerequisites on suffix rule definition
+cc -c -DPERL_CORE -c99 -no_ansi_alias -D_INTRINSICS -fprm d -ieee -trapuv -readonly_strings -D_SOCKADDR_LEN -D_POSIX_PII_SOCKET -I/usr/local/include -DLANGUAGE_C -O4 sv.c
+cc: Error: sv.c, line 9147: Invalid statement. (badstmt)
+                ) {
+----------------^
+
+There are many warnings btw, about bitfields not being int, signed, unsigned, or _Bool.
+
+    oops_its_num:
+        {
+            const NV was = SvNVX(sv);
+            if (NV_OVERFLOWS_INTEGERS_AT != 0.0 &&
+                /* If NVX was NaN, these comparisons return always false */
+                UNLIKELY(was <= -NV_OVERFLOWS_INTEGERS_AT ||
+                         was > NV_OVERFLOWS_INTEGERS_AT) &&
+#if defined(NAN_COMPARE_BROKEN)
+                LIKELY(!Perl_isinfnan(was))) <== Remove the last right paren here.
+#else
+                LIKELY(!Perl_isinf(was))
+#endif
+                ) {
+
+Remove the last right paren in the #if please.

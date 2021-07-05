@@ -1,0 +1,105 @@
+Depends on zlib?
+  -I$HOME/include helps
+
+Depends on GNU make?
+  It seems so.
+
+Out of tree builds do not work?
+ It seems so.
+
+cd
+cd s
+get https://www.kernel.org/pub/software/scm/git/git-2.32.0.tar.gz
+tar xf git-2.32.0.tar.gz
+cd git-2.32.0
+./configure -prefix=$HOME CC=cc CFLAGS="-c99 -pthread -I$HOME/include"
+SHELL_PATH=`which bash`
+export SHELL_PATH
+make
+
+ cc: Error: run-command.c, line 839: In this statement, "NSIG" is not declared. (undeclared)
+                for (sig = 1; sig < NSIG; sig++) {
+
+NSIG is behind #ifdef _XOPEN_SOURCE_EXTENDED 1 in /usr/include/signal.h but defining that seems to be trouble, so add:
+ #define NSIG (SIGMAX+1) 
+in run-command.c after all the #includes
+
+ cc: Error: sequencer.c, line 2315: This leave statement is not within a try statement. (noleavetarg)
+  leave:
+ Add "#undef leave" after all the includes
+
+builtin/receive-pack.c:
+ also #undef leave after includes
+
+Please consider avoiding this identifier "leave". It is trouble in some Windows environments also,
+where it is #defined to be __leave, and the #undef fixes it there too. In both cases this is
+an exception handling language extension for C.
+
+There are warnings about setenv implicit declaration.
+It is behind #ifdef _BSD in /usr/include/stdlib.h but #define _BSD seems to be trouble.
+Ignore the warnings is probably ok.
+Can also copy in the declaration.
+
+I built git relatively late, so it could be depending on myriad sed, awk, etc.
+
+TODO: Build in package into its own prefix, and then add to path only if needed.
+
+Warning version mismatch for shared library libiconv.so
+git-daemon depends on version osf.1 and libintl.so depends on version 2.0
+Unresolved:
+libintl_gettext
+libintl_ngettext
+libintl_textdomain
+libintl_bindtextdomain
+libintl_bind_textdomain_codeset
+
+Rebuild with make NO_GETTEXT=1
+
+cc: Warning: builtin/sparse-checkout.c, line 491: In this declaration, the enumerator "ns_uop_add" is not unique. (dupenum)
+        ADD,
+--------^
+
+Wow.
+
+$ cd /usr/include
+$ grep ns_uop_add */*
+arpa/nameser.h: ns_uop_add = 1,
+arpa/nameser_compat.h:#define ADD               ns_uop_add
+
+Three cheers for namespace pollution. :(
+
+So change ADD to GIT_ADD ?
+
+Unresolved:
+strtoull
+
+So make NO_STRTOULL=1 NO_GETTEXT=1 install
+or for the impatient change strtoull in compat/strtoumax.c to strtoul, touch all other *.o
+Must be some configure problem. And strtoull is in headers.
+I didn't track this down.
+
+./t/helper/test-progress.c
+
+Change strtoull to strtoul.
+
+and eh, make install fails:
+
+install -d -m 755 '/usr/users/jay/bin'
+Usage: install [-c dira] [-f dirb] [-i] [-M] [-m mode] [-u owner] [-g group] [-S] [-n dirc] [-o] [-s] file [dirx ...]
+make: *** [Makefile:2986: install] Error 2
+
+In Makefile, change:
+INSTALL = install
+to
+INSTALL = installbsd
+
+er, nope:
+install: too many files specified -> -d -m 755 /usr/users/jay/bin
+
+change it to random install-sh from other package:
+INSTALL = /usr/users/jay/s/make-3.82/config/install-sh
+
+There is surely a GNU install I haven't built yet.
+
+Git is not useful without openssl.
+Openssl requires a Perl update.
