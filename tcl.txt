@@ -46,3 +46,6 @@ $ diff -u  $HOME/s/tcl8.6.11/generic/tclCmdMZ.c{.orig,}
 
 nohup sh -c "$HOME/s/tcl8.6.11/unix/configure -prefix=$HOME -enable-static -disable-shared -disable-nls -verbose CC=cc CFLAGS=\"-pthread -c99\" && make && make install" &
 tail -f nohup.out
+
+gcc should also work more easily.
+
