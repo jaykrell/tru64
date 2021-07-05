@@ -35,6 +35,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <wait.h>
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -77,13 +78,26 @@ copysign prototype is in math.h, disabled by _XOPEN_SOURCE_EXTENDED, yes, disabl
 #endif
 #endif
 
+/* ditto INTMAX_MAX */
+#ifndef INTMAX_MAX
+#ifdef __INTMAX_MAX__
+#define INTMAX_MAX __INTMAX_MAX__
+#else
+/* ULLONG_MAX ought to work, but it is only in sm/limits.h (sendmail) */
+#define INTMAX_MAX LONG_MAX
+#endif
+#endif
+
 /* C99 types might be missing; long or long long are ok. Try gcc's predefines. */
+/* Sometimes they are defines. */
+#undef intmax_t
 #ifdef __INTMAX_TYPE__
 typedef __INTMAX_TYPE__ intmax_t;
 #else
 typedef long intmax_t;
 #endif
 
+#undef uintmax_t
 #ifdef __UINTMAX_TYPE__
 typedef __UINTMAX_TYPE__ uintmax_t;
 #else
@@ -97,6 +111,12 @@ typedef unsigned long uintmax_t;
 #define PRIo64 "lo"
 #define PRIu64 "lu"
 #define PRIx64 "lx"
+
+#define PRIdMAX "ld"
+#define PRIiMAX "li"
+#define PRIoMAX "lo"
+#define PRIuMAX "lu"
+#define PRIxMAX "lx"
 
 /* C99 integer constant macros are missing
  * When using gcc use its predefines.
