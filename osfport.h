@@ -22,13 +22,14 @@
  *
  * gcc also defines _LP64 but cc does not.
  */
-#if defined(__osf__) && defined(__alpha__) && defined(__arch64__)
+#if defined(__osf__) && defined(__arch64__)
 
 #define __STDC_CONSTANT_MACROS 1
 #define __STDC_LIMIT_MACROS 1
 #undef _ISO_C_SOURCE
 #define _ISO_C_SOURCE 199901
-#define _OSF_SOURCE
+#define _OSF_SOURCE 1
+#define _ANSI_C_SOURCE 1
 #undef _XOPEN_SOURCE_EXTENDED
 #include <sys/types.h>
 #include <grp.h>
