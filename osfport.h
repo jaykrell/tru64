@@ -30,6 +30,7 @@
 #define _ISO_C_SOURCE 199901
 #define _OSF_SOURCE 1
 #define _ANSI_C_SOURCE 1
+#define _POSIX_C_SOURCE 199506L
 #undef _XOPEN_SOURCE_EXTENDED
 #include <sys/types.h>
 #include <grp.h>
