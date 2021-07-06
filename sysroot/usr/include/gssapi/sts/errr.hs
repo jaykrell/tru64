@@ -1,0 +1,22 @@
+/* Automatically generated Mon Jan  4 18:04:08 1999
+ */
+
+#define gss_r_ERR_NONE ((35646464L)+0)
+#define gss_r_BAD_MECH ((35646464L)+1)
+#define gss_r_BAD_NAME ((35646464L)+2)
+#define gss_r_BAD_NAMETYPE ((35646464L)+3)
+#define gss_r_BAD_BINDINGS ((35646464L)+4)
+#define gss_r_BAD_STATUS ((35646464L)+5)
+#define gss_r_BAD_SIG ((35646464L)+6)
+#define gss_r_NO_CRED ((35646464L)+7)
+#define gss_r_NO_CONTEXT ((35646464L)+8)
+#define gss_r_DEFECTIVE_TOKEN ((35646464L)+9)
+#define gss_r_DEFECTIVE_CREDENTIAL ((35646464L)+10)
+#define gss_r_CREDENTIALS_EXPIRED ((35646464L)+11)
+#define gss_r_CONTEXT_EXPIRED ((35646464L)+12)
+#define gss_r_FAILURE ((35646464L)+13)
+#define gss_r_BAD_QOP ((35646464L)+14)
+#define gss_r_UNAUTHORIZED ((35646464L)+15)
+#define gss_r_UNAVAILABLE ((35646464L)+16)
+#define gss_r_DUPLICATE_ELEMENT ((35646464L)+17)
+#define gss_r_NAME_NOT_MN ((35646464L)+18)

@@ -1,0 +1,2207 @@
+/*
+ * *****************************************************************
+ * *                                                               *
+ * *   Copyright 2002 Compaq Information Technologies Group, L.P.  *
+ * *                                                               *
+ * *   The software contained on this media  is  proprietary  to   *
+ * *   and  embodies  the  confidential  technology  of  Compaq    *
+ * *   Computer Corporation.  Possession, use,  duplication  or    *
+ * *   dissemination of the software and media is authorized only  *
+ * *   pursuant to a valid written license from Compaq Computer    *
+ * *   Corporation.                                                *
+ * *                                                               *
+ * *   RESTRICTED RIGHTS LEGEND   Use, duplication, or disclosure  *
+ * *   by the U.S. Government is subject to restrictions  as  set  *
+ * *   forth in Subparagraph (c)(1)(ii)  of  DFARS  252.227-7013,  *
+ * *   or  in  FAR 52.227-19, as applicable.                       *
+ * *                                                               *
+ * *****************************************************************
+ */
+/*
+ * HISTORY
+ */
+/*
+ * @(#)$RCSfile: comet_regs.h,v $ $Revision: 1.1.27.1 $ (DEC) $Date: 2002/01/24 18:54:43 $
+ */
+
+/*
+ *				comet_regs.h
+ *
+ * Hardware description and definitions for Digital graphics boards based
+ * on the 3Dlabs Permedia 2 chip.
+ *
+ * 3Dlabs and Permedia are trademarks of 3Dlabs, Inc.
+ * RAMDAC is a trademark of Brooktree, Inc.
+ */
+
+#if	!defined(_COMET_REGS_H_)
+#define	_COMET_REGS_H_
+
+#ifndef __cplusplus
+
+/*
+ * Macros
+ */
+
+/*
+ * PCI Values
+ */
+#define	COMET_PCI_VENDOR_ID			0x104c
+#define	COMET_PCI_DEVICE_ID			0x3d07
+
+#define	COMET_4D10T_PCI_SUB_VENDOR_ID		0x1011
+#define	COMET_4D10T_PCI_SUB_DEVICE_ID		0x4d10
+
+#define	COMET_ELSA_PCI_SUB_VENDOR_ID		0x1048
+
+#define	COMET_P2V_PCI_VENDOR_ID			0x3d3d
+#define	COMET_P2V_PCI_DEVICE_ID			0x0009
+
+/*
+ * Implementation Limits
+ *
+ * The clock periods are expressed in picoseconds.
+ */
+#define	COMET_P2_RAMDAC_PALETTE_NUM		256
+#define	COMET_APERTURE_SIZE			(8 << 20)
+#define	COMET_GP_REGISTER_FILE_SIZE		(128 << 10)
+#define	COMET_MCLK_PERIOD_MIN			12000
+#define	COMET_DCLK_PERIOD_MIN			4300
+#define	COMET_SCLKIN_PERIOD_MIN			24000
+#define	COMET_EXTERNAL_CLOCK_FREQ		14318180
+#define	COMET_PLL_FREQ_MIN			150000000
+#define	COMET_PLL_FREQ_MAX			300000000
+#define	COMET_P2_PIXELCLOCK_MAX			220000000
+#define	COMET_P2_PIXELDATA_MAX			500000000
+#define	COMET_P2_CLOCK_FREQ_DEFAULT		80000000
+
+/*
+ * Utilities
+ */
+#define COMET_OFFSETOF(_s_name, _s_member)			\
+    ((size_t)((char *) &((_s_name *) 0L)->_s_member - (char *) 0L))
+
+/*
+ * FIELD_TO_TAG converts a field name in the GP register area
+ * to a tag value.  No check is performed for out-of-range
+ * addresses.
+ */
+#define	COMET_FIELD_TO_TAG(_field)				\
+     ((COMET_OFFSETOF(comet_region0_t, _field) & 0x1fff) >> 3)
+
+/*
+ * Interrupt bits.  Used in intEnable and intFlags.
+ */
+#define	COMET_INTR_DMA					0x00000001
+#define	COMET_INTR_SYNC					0x00000002
+#define	COMET_INTR_ERROR				0x00000008
+#define	COMET_INTR_VERT_RETRACE				0x00000010
+#define	COMET_INTR_SCANLINE				0x00000020
+#define	COMET_INTR_TEXTURE				0x00000040
+#define	COMET_INTR_BYPASS				0x00000080
+#define	COMET_INTR_VIDEO_A				0x00000100
+#define	COMET_INTR_VIDEO_B				0x00000200
+#define	COMET_INTR_VIDEO_STREAM				0x00000400
+#define	COMET_INTR_VIDEO_DDC				0x00000800
+#define	COMET_INTR_VIDEO_EXTERNAL			0x00001000
+#define	COMET_INTR_SVGA					0x80000000
+
+/*
+ * Aperture control bits.  Used in aperture1 and aperture2.
+ */
+#define	COMET_AP_MEMORY_BYTE_MASK			0x00000003
+#define	COMET_AP_MB_STANDARD				0x00000000
+#define	COMET_AP_MB_BYTE_SWAPPED			0x00000001
+#define	COMET_AP_MB_HALF_WORD_SWAPPED			0x00000002
+#define	COMET_AP_PACKED_16_MASK				0x00000008
+#define	COMET_AP_PACKED_16_ENABLE			0x00000008
+#define	COMET_AP_PACKED_16_DISABLE			0x00000000
+#define	COMET_AP_P16_READ_BUFSEL_MASK			0x00000010
+#define	COMET_AP_P16_RB_A				0x00000000
+#define	COMET_AP_P16_RB_B				0x00000010
+#define	COMET_AP_P16_WRITE_BUFSEL_MASK			0x00000020
+#define	COMET_AP_P16_WB_A				0x00000000
+#define	COMET_AP_P16_WB_B				0x00000020
+#define	COMET_AP_P16_WRITE_MODE_MASK			0x00000040
+#define	COMET_AP_P16_WM_DOUBLE				0x00000040
+#define	COMET_AP_P16_WM_SINGLE				0x00000000
+#define	COMET_AP_P16_READ_MODE_MASK			0x00000080
+#define	COMET_AP_P16_RM_USE_BIT4			0x00000000
+#define	COMET_AP_P16_RM_USE_CONTENTS			0x00000080
+#define	COMET_AP_SVGA_ACCESS_MASK			0x00000100
+#define	COMET_AP_SA_DIRECT				0x00000000
+#define	COMET_AP_SA_VIA_SVGA				0x00000100
+#define	COMET_AP_ROM_ACCESS_MASK			0x00000200
+#define	COMET_AP_RA_MEMORY				0x00000000
+#define	COMET_AP_RA_EXPANSION_ROM			0x00000200
+
+/*
+ * P2A RAMDAC Indirect Commands
+ */
+#define	COMET_P2_RAMDAC_CMD_CURSOR_CONTROL		0x6
+#define	COMET_P2_RAMDAC_CMD_COLOR_MODE			0x18
+#define	COMET_P2_RAMDAC_CMD_MODE_CONTROL		0x19
+#define	COMET_P2_RAMDAC_CMD_PALETTE_PAGE		0x1c
+#define	COMET_P2_RAMDAC_CMD_MISC_CONTROL		0x1e
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_A1		0x20
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_A2		0x21
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_A3		0x22
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_B1		0x23
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_B2		0x24
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_B3		0x25
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_C1		0x26
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_C2		0x27
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_C3		0x28
+#define	COMET_P2_RAMDAC_CMD_PIXEL_CLOCK_STATUS		0x29
+#define	COMET_P2_RAMDAC_CMD_MEMORY_CLOCK_1		0x30
+#define	COMET_P2_RAMDAC_CMD_MEMORY_CLOCK_2		0x31
+#define	COMET_P2_RAMDAC_CMD_MEMORY_CLOCK_3		0x32
+#define	COMET_P2_RAMDAC_CMD_MEMORY_CLOCK_STATUS		0x33
+#define	COMET_P2_RAMDAC_CMD_COLOR_KEY_CONTROL		0x40
+#define	COMET_P2_RAMDAC_CMD_OVERLAY_KEY			0x41
+#define	COMET_P2_RAMDAC_CMD_RED_KEY			0x42
+#define	COMET_P2_RAMDAC_CMD_GREEN_KEY			0x43
+#define	COMET_P2_RAMDAC_CMD_BLUE_KEY			0x44
+
+/*
+ * P2V RAMDAC Indirect Commands
+ */
+#define	COMET_P2V_RAMDAC_CMD_MISC_CONTROL		0x00
+#define	COMET_P2V_RAMDAC_CMD_SYNC_CONTROL		0x01
+#define	COMET_P2V_RAMDAC_CMD_DAC_CONTROL		0x02
+#define	COMET_P2V_RAMDAC_CMD_PIXEL_SIZE			0x03
+#define	COMET_P2V_RAMDAC_CMD_COLOR_FORMAT		0x04
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_MODE		0x05
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_CONTROL		0x06
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_X_LOW		0x07
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_X_HIGH		0x08
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_Y_LOW		0x09
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_Y_HIGH		0x0a
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_X_HOT		0x0b
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_Y_HOT		0x0c
+#define	COMET_P2V_RAMDAC_CMD_OVERLAY_KEY		0x0d
+#define	COMET_P2V_RAMDAC_CMD_PAN			0x0e
+#define	COMET_P2V_RAMDAC_CMD_SENSE			0x0f
+#define	COMET_P2V_RAMDAC_CMD_CHECK_CONTROL		0x18
+#define	COMET_P2V_RAMDAC_CMD_CHECK_PIXEL_RED		0x19
+#define	COMET_P2V_RAMDAC_CMD_CHECK_PIXEL_GREEN		0x1a
+#define	COMET_P2V_RAMDAC_CMD_CHECK_PIXEL_BLUE		0x1b
+#define	COMET_P2V_RAMDAC_CMD_CHECK_LUT_RED		0x1c
+#define	COMET_P2V_RAMDAC_CMD_CHECK_LUT_GREEN		0x1d
+#define	COMET_P2V_RAMDAC_CMD_CHECK_LUT_BLUE		0x1e
+#define	COMET_P2V_RAMDAC_CMD_PIXEL_CLOCK_SETUP_1	0x1f0
+#define	COMET_P2V_RAMDAC_CMD_PIXEL_CLOCK_SETUP_2	0x1f1
+#define	COMET_P2V_RAMDAC_CMD_MCLOCK_SETUP_1		0x1f2
+#define	COMET_P2V_RAMDAC_CMD_MCLOCK_SETUP_2		0x1f3
+#define	COMET_P2V_RAMDAC_CMD_PIXEL_CLOCK_CONTROL	0x200
+#define	COMET_P2V_RAMDAC_CMD_CLOCK0_PRE_SCALE		0x201
+#define	COMET_P2V_RAMDAC_CMD_CLOCK0_FEEDBACK_SCALE	0x202
+#define	COMET_P2V_RAMDAC_CMD_CLOCK0_POST_SCALE		0x203
+#define	COMET_P2V_RAMDAC_CMD_CLOCK1_PRE_SCALE		0x204
+#define	COMET_P2V_RAMDAC_CMD_CLOCK1_FEEDBACK_SCALE	0x205
+#define	COMET_P2V_RAMDAC_CMD_CLOCK1_POST_SCALE		0x206
+#define	COMET_P2V_RAMDAC_CMD_CLOCK2_PRE_SCALE		0x207
+#define	COMET_P2V_RAMDAC_CMD_CLOCK2_FEEDBACK_SCALE	0x208
+#define	COMET_P2V_RAMDAC_CMD_CLOCK2_POST_SCALE		0x209
+#define	COMET_P2V_RAMDAC_CMD_CLOCK3_PRE_SCALE		0x20a
+#define	COMET_P2V_RAMDAC_CMD_CLOCK3_FEEDBACK_SCALE	0x20b
+#define	COMET_P2V_RAMDAC_CMD_CLOCK3_POST_SCALE		0x20c
+#define	COMET_P2V_RAMDAC_CMD_MCLK_CONTROL		0x20d
+#define	COMET_P2V_RAMDAC_CMD_MCLK_PRE_SCALE		0x20e
+#define	COMET_P2V_RAMDAC_CMD_MCLK_FEEDBACK_SCALE	0x20f
+#define	COMET_P2V_RAMDAC_CMD_MCLK_POST_SCALE		0x210
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_PALETTE		0x303
+#define	COMET_P2V_RAMDAC_CMD_CURSOR_PATTERN		0x400
+
+/*
+ * RAMDAC Indirect Command CURSOR_CONTROL
+ */
+#define	COMET_RC_CC_CURSOR_MODE_MASK			0x03
+#define	COMET_RC_CC_CM_DISABLE				0x00
+#define	COMET_RC_CC_CM_3_COLOR				0x01
+#define	COMET_RC_CC_CM_XGA				0x02
+#define	COMET_RC_CC_CM_X11				0x03
+#define	COMET_RC_CC_RAM_ADDR_MASK			0x0c
+#define	COMET_RC_CC_RAM_ADDR_SHIFT			2
+#define	COMET_RC_CC_CURSOR_SELECT_MASK			0x30
+#define	COMET_RC_CC_CS_0				0x00
+#define	COMET_RC_CC_CS_1				0x10
+#define	COMET_RC_CC_CS_2				0x20
+#define	COMET_RC_CC_CS_3				0x30
+#define	COMET_RC_CC_CURSOR_SIZE_MASK			0x40
+#define	COMET_RC_CC_CS_32X32				0x00
+#define	COMET_RC_CC_CS_64X64				0x40
+
+/*
+ * RAMDAC Indirect Command COLOR_MODE
+ */
+#define	COMET_RC_CM_PIXEL_FORMAT_MASK			0x0f
+#define	COMET_RC_CM_PF_CI8_SVGA				0x00
+#define	COMET_RC_CM_PF_RGB332				0x01
+#define	COMET_RC_CM_PF_RGB232_OFFSET			0x02
+#define	COMET_RC_CM_PF_RGBA2321				0x03
+#define	COMET_RC_CM_PF_RGBA5551				0x04
+#define	COMET_RC_CM_PF_RGBA4444				0x05
+#define	COMET_RC_CM_PF_RGB565				0x06
+#define	COMET_RC_CM_PF_RGBA8888				0x08
+#define	COMET_RC_CM_PF_RGB888				0x09
+#define	COMET_RC_CM_GUI_MASK				0x10
+#define	COMET_RC_CM_SVGA				0x00
+#define	COMET_RC_CM_GUI					0x10
+#define	COMET_RC_CM_RGB_ORDER_MASK			0x20
+#define	COMET_RC_CM_RO_BGR				0x00
+#define	COMET_RC_CM_RO_RGB				0x20
+#define	COMET_RC_CM_TRUECOLOR_MASK			0x80
+#define	COMET_RC_CM_TRUECOLOR_DISABLE			0x00
+#define	COMET_RC_CM_TRUECOLOR_ENABLE			0x80
+
+/*
+ * RAMDAC Indirect Command MODE_CONTROL
+ */
+#define	COMET_RC_MC_BUFFER_SELECT_MASK			0x01
+#define	COMET_RC_MC_BS_FRONT				0x00
+#define	COMET_RC_MC_BS_BACK				0x01
+#define	COMET_RC_MC_STATIC_DB_MASK			0x02
+#define	COMET_RC_MC_SDB_ENABLE				0x02
+#define	COMET_RC_MC_SDB_DISABLE				0x00
+#define	COMET_RC_MC_DYNAMIC_DB_MASK			0x04
+#define	COMET_RC_MC_DDB_ENABLE				0x04
+#define	COMET_RC_MC_DDB_DISABLE				0x00
+
+/*
+ * RAMDAC Indirect Command MISC_CONTROL
+ */
+#define	COMET_RC_MC_DAC_POWER_DOWN_MASK			0x01
+#define	COMET_RC_MC_DPD_ENABLE				0x01
+#define	COMET_RC_MC_DPD_DISABLE				0x00
+#define	COMET_RC_MC_PALETTE_WIDTH_MASK			0x02
+#define	COMET_RC_MC_PW_6BITS				0x00
+#define	COMET_RC_MC_PW_8BITS				0x02
+#define	COMET_RC_MC_HORIZ_SYNC_POLARITY_MASK		0x04
+#define	COMET_RC_MC_HSP_INVERT				0x04
+#define	COMET_RC_MC_HSP_NONINVERT			0x00
+#define	COMET_RC_MC_VERT_SYNC_POLARITY_MASK		0x08
+#define	COMET_RC_MC_VSP_INVERT				0x08
+#define	COMET_RC_MC_VSP_NONINVERT			0x00
+#define	COMET_RC_MC_BLANK_PEDESTAL_MASK			0x10
+#define	COMET_RC_MC_BP_ENABLE				0x10
+#define	COMET_RC_MC_BP_DISABLE				0x00
+#define	COMET_RC_MC_SYNC_ON_GREEN_MASK			0x20
+#define	COMET_RC_MC_SOG_ENABLE				0x20
+#define	COMET_RC_MC_SOG_DISABLE				0x00
+
+/*
+ * RAMDAC Indirect Command PIXEL_CLOCK_[ABC]3
+ */
+#define	COMET_RC_PC3_P_MASK				0x03
+#define	COMET_RC_PC3_P_SHIFT				0
+#define	COMET_RC_PC3_CLOCK_MASK				0x08
+#define	COMET_RC_PC3_CLOCK_ENABLE			0x08
+#define	COMET_RC_PC3_CLOCK_DISABLE			0x00
+
+/*
+ * RAMDAC Indirect Command [PIXEL, MEMORY]_CLOCK_STATUS
+ */
+#define	COMET_RC_CS_PLL_MASK				0x10
+#define	COMET_RC_CS_PLL_LOCKED				0x10
+#define	COMET_RC_CS_PLL_OUT_OF_LOCK			0x00
+
+/*
+ * RAMDAC Indirect Command MEMORY_CLOCK
+ */
+#define	COMET_RC_MC_P_MASK				0x07
+#define	COMET_RC_MC_P_SHIFT				0
+
+/*
+ * RAMDAC Indirect Command COLOR_KEY_CONTROL
+ */
+#define	COMET_RC_CKC_OVERLAY_MASK			0x01
+#define	COMET_RC_CKC_OVERLAY_ENABLE			0x01
+#define	COMET_RC_CKC_OVERLAY_DISABLE			0x00
+#define	COMET_RC_CKC_RED_MASK				0x02
+#define	COMET_RC_CKC_RED_ENABLE				0x02
+#define	COMET_RC_CKC_RED_DISABLE			0x00
+#define	COMET_RC_CKC_GREEN_MASK				0x04
+#define	COMET_RC_CKC_GREEN_ENABLE			0x04
+#define	COMET_RC_CKC_GREEN_DISABLE			0x00
+#define	COMET_RC_CKC_BLUE_MASK				0x08
+#define	COMET_RC_CKC_BLUE_ENABLE			0x08
+#define	COMET_RC_CKC_BLUE_DISABLE			0x00
+#define	COMET_RC_CKC_TEST_POLARITY_MASK			0x10
+#define	COMET_RC_CKC_TP_TRUE				0x00
+#define	COMET_RC_CKC_TP_FALSE				0x00
+
+/*
+ * P2V RAMDAC Indirect Command MISC_CONTROL
+ */
+#define	COMET_2VRC_MC_DAC_SIZE_MASK			0x00000001
+#define	COMET_2VRC_MC_DAC_SIZE_8BIT			0x00000001
+#define	COMET_2VRC_MC_DAC_SIZE_6BIT			0x00000000
+#define	COMET_2VRC_MC_PIXEL_DOUBLE_MASK			0x00000002
+#define	COMET_2VRC_MC_PIXEL_DOUBLE_ENABLE		0x00000002
+#define	COMET_2VRC_MC_PIXEL_DOUBLE_DISABLE		0x00000000
+#define	COMET_2VRC_MC_LAST_READ_ADDR_MASK		0x00000004
+#define	COMET_2VRC_MC_LAST_READ_ADDR_ENABLE		0x00000004
+#define	COMET_2VRC_MC_LAST_READ_ADDR_DISABLE		0x00000000
+#define	COMET_2VRC_MC_DIRECT_COLOR_MASK			0x00000008
+#define	COMET_2VRC_MC_DIRECT_COLOR_ENABLE		0x00000008
+#define	COMET_2VRC_MC_DIRECT_COLOR_DISABLE		0x00000000
+#define	COMET_2VRC_MC_OVERLAY_MASK			0x00000010
+#define	COMET_2VRC_MC_OVERLAY_ENABLE			0x00000010
+#define	COMET_2VRC_MC_OVERLAY_DISABLE			0x00000000
+#define	COMET_2VRC_MC_PIXEL_DB_MASK			0x00000020
+#define	COMET_2VRC_MC_PIXEL_DB_ENABLE			0x00000020
+#define	COMET_2VRC_MC_PIXEL_DB_DISABLE			0x00000000
+#define	COMET_2VRC_MC_STEREO_DB_MASK			0x00000040
+#define	COMET_2VRC_MC_STEREO_DB_ENABLE			0x00000040
+#define	COMET_2VRC_MC_STEREO_DB_DISABLE			0x00000000
+
+/*
+ * P2V RAMDAC Indirect Command SYNC_CONTROL
+ */
+#define	COMET_2VRC_SC_HSYNC_MASK			0x00000007
+#define	COMET_2VRC_SC_HSYNC_ACTIVE_LOW			0x00000000
+#define	COMET_2VRC_SC_HSYNC_ACTIVE_HIGH			0x00000001
+#define	COMET_2VRC_SC_HSYNC_TRI_STATE			0x00000002
+#define	COMET_2VRC_SC_HSYNC_FORCE_ACTIVE		0x00000003
+#define	COMET_2VRC_SC_HSYNC_FORCE_INACTIVE		0x00000004
+#define	COMET_2VRC_SC_VSYNC_MASK			0x00000038
+#define	COMET_2VRC_SC_VSYNC_ACTIVE_LOW			0x00000000
+#define	COMET_2VRC_SC_VSYNC_ACTIVE_HIGH			0x00000008
+#define	COMET_2VRC_SC_VSYNC_TRI_STATE			0x00000010
+#define	COMET_2VRC_SC_VSYNC_FORCE_ACTIVE		0x00000018
+#define	COMET_2VRC_SC_VSYNC_FORCE_INACTIVE		0x00000020
+
+/*
+ * P2V RAMDAC Indirect Command DAC_CONTROL
+ */
+#define	COMET_2VRC_DC_POWER_MASK			0x00000001
+#define	COMET_2VRC_DC_NORMAL_POWER			0x00000000
+#define	COMET_2VRC_DC_LOW_POWER				0x00000001
+#define	COMET_2VRC_DC_SYNC_ON_GREEN_MASK		0x00000008
+#define	COMET_2VRC_DC_SYNC_ON_GREEN_ENABLE		0x00000008
+#define	COMET_2VRC_DC_SYNC_ON_GREEN_DISABLE		0x00000000
+#define	COMET_2VRC_DC_BLANK_RED_DAC_MASK		0x00000010
+#define	COMET_2VRC_DC_BLANK_RED_DAC_ENABLE		0x00000010
+#define	COMET_2VRC_DC_BLANK_RED_DAC_DISABLE		0x00000000
+#define	COMET_2VRC_DC_BLANK_GREEN_DAC_MASK		0x00000020
+#define	COMET_2VRC_DC_BLANK_GREEN_DAC_ENABLE		0x00000020
+#define	COMET_2VRC_DC_BLANK_GREEN_DAC_DISABLE		0x00000000
+#define	COMET_2VRC_DC_BLANK_BLUE_DAC_MASK		0x00000040
+#define	COMET_2VRC_DC_BLANK_BLUE_DAC_ENABLE		0x00000040
+#define	COMET_2VRC_DC_BLANK_BLUE_DAC_DISABLE		0x00000000
+#define	COMET_2VRC_DC_BLANK_PEDESTAL_MASK		0x00000080
+#define	COMET_2VRC_DC_BLANK_PEDESTAL_ENABLE		0x00000080
+#define	COMET_2VRC_DC_BLANK_PEDESTAL_DISABLE		0x00000000
+
+/*
+ * P2V RAMDAC Indirect Command PIXEL_SIZE
+ */
+#define	COMET_2VRC_PS_8BIT				0
+#define	COMET_2VRC_PS_16BIT				1
+#define	COMET_2VRC_PS_32BIT				2
+#define	COMET_2VRC_PS_24BIT				4
+
+/*
+ * P2V RAMDAC Indirect Command COLOR_FORMAT
+ */
+#define	COMET_2VRC_CF_VISUAL_MASK			0x0000001f
+#define	COMET_2VRC_CF_VISUAL_256_COLOR			0x0000000e
+#define	COMET_2VRC_CF_VISUAL_HIGH_COLOR			0x00000010
+#define	COMET_2VRC_CF_VISUAL_TRUE_COLOR			0x00000000
+#define	COMET_2VRC_CF_ORDER_MASK			0x00000020
+#define	COMET_2VRC_CF_ORDER_BGR				0x00000020
+#define	COMET_2VRC_CF_ORDER_RGB				0x00000000
+#define	COMET_2VRC_CF_LINEAR_COLOR_EXT_MASK		0x00000040
+#define	COMET_2VRC_CF_LINEAR_COLOR_EXT_ENABLE		0x00000040
+#define	COMET_2VRC_CF_LINEAR_COLOR_EXT_DISABLE		0x00000000
+
+/*
+ * P2V RAMDAC Indirect Command CURSOR_MODE
+ *
+ * Note:  Don't really know what these values mean.  They're magic
+ * from the VMS driver.
+ */
+#define	COMET_2VRC_CM_ENABLE_MASK			0x00000001
+#define	COMET_2VRC_CM_ENABLE				0x00000001
+#define	COMET_2VRC_CM_DISABLE				0x00000000
+#define	COMET_2VRC_CM_FORMAT_MASK			0x0000000e
+#define	COMET_2VRC_CM_FORMAT_64X64_2			0x00000000
+#define	COMET_2VRC_CM_FORMAT_32X32_2_0			0x00000002
+#define	COMET_2VRC_CM_FORMAT_32X32_2_1			0x00000004
+#define	COMET_2VRC_CM_FORMAT_32X32_2_2			0x00000006
+#define	COMET_2VRC_CM_FORMAT_32X32_2_3			0x00000008
+#define	COMET_2VRC_CM_FORMAT_32X32_4_01			0x0000000a
+#define	COMET_2VRC_CM_FORMAT_32X32_4_23			0x0000000c
+#define	COMET_2VRC_CM_TYPE_MASK				0x00000030
+#define	COMET_2VRC_CM_TYPE_WINDOWS			0x00000000
+#define	COMET_2VRC_CM_TYPE_X11				0x00000010
+#define	COMET_2VRC_CM_TYPE_3_COLOR			0x00000020
+#define	COMET_2VRC_CM_TYPE_15_COLOR			0x00000030
+#define	COMET_2VRC_CM_BIT_ORDER_MASK			0x00000040
+#define	COMET_2VRC_CM_BO_L2R				0x00000000
+#define	COMET_2VRC_CM_BO_R2L				0x00000040
+
+/*
+ * P2V RAMDAC Indirect Command CURSOR_CONTROL
+ */
+#define	COMET_2VRC_CC_DOUBLE_X_MASK			0x00000001
+#define	COMET_2VRC_CC_DX_ENABLE				0x00000001
+#define	COMET_2VRC_CC_DX_DISABLE			0x00000000
+#define	COMET_2VRC_CC_DOUBLE_Y_MASK			0x00000002
+#define	COMET_2VRC_CC_DY_ENABLE				0x00000002
+#define	COMET_2VRC_CC_DY_DISABLE			0x00000000
+#define	COMET_2VRC_CC_READBACK_MASK			0x00000004
+#define	COMET_2VRC_CC_RB_LAST_WRITTEN			0x00000000
+#define	COMET_2VRC_CC_RB_CURRENT			0x00000004
+
+/*
+ * P2V RAMDAC Indirect Command CHECK_CONTROL
+ */
+#define	COMET_2VRC_CKC_PIXEL_MASK			0x00000001
+#define	COMET_2VRC_CKC_PIXEL_ENABLE			0x00000001
+#define	COMET_2VRC_CKC_PIXEL_DISABLE			0x00000000
+#define	COMET_2VRC_CKC_LUT_MASK				0x00000002
+#define	COMET_2VRC_CKC_LUT_ENABLE			0x00000002
+#define	COMET_2VRC_CKC_LUT_DISABLE			0x00000000
+
+/*
+ * P2V RAMDAC Indirect Command PIXEL_CLOCK_CONTROL
+ */
+#define	COMET_2VRC_PCC_MASK				0x00000001
+#define	COMET_2VRC_PCC_ENABLE				0x00000001
+#define	COMET_2VRC_PCC_DISABLE				0x00000000
+#define	COMET_2VRC_PCC_PLL_MASK				0x00000002
+#define	COMET_2VRC_PCC_PLL_LOCKED			0x00000002
+#define	COMET_2VRC_PCC_PLL_UNLOCKED			0x00000000
+#define	COMET_2VRC_PCC_STATE_MASK			0x0000000c
+#define	COMET_2VRC_PCC_STATE_LOW			0x00000000
+#define	COMET_2VRC_PCC_STATE_HIGH			0x00000004
+#define	COMET_2VRC_PCC_STATE_RUN			0x00000008
+
+/*
+ * P2V RAMDAC Indirect Command MCLK_CONTROL
+ */
+#define	COMET_2VRC_MCC_MASK				0x00000001
+#define	COMET_2VRC_MCC_ENABLE				0x00000001
+#define	COMET_2VRC_MCC_DISABLE				0x00000000
+#define	COMET_2VRC_MCC_PLL_MASK				0x00000002
+#define	COMET_2VRC_MCC_PLL_LOCKED			0x00000002
+#define	COMET_2VRC_MCC_PLL_UNLOCKED			0x00000000
+#define	COMET_2VRC_MCC_STATE_MASK			0x0000000c
+#define	COMET_2VRC_MCC_STATE_LOW			0x00000000
+#define	COMET_2VRC_MCC_STATE_HIGH			0x00000004
+#define	COMET_2VRC_MCC_STATE_RUN			0x00000008
+
+/*
+ * Generic color format values
+ */
+#define	COMET_CF_8888					0x0000000
+#define	COMET_CF_5551_FRONT				0x0000001
+#define	COMET_CF_4444					0x0000002
+#define	COMET_CF_332_FRONT				0x0000005
+#define	COMET_CF_332_BACK				0x0000006
+#define	COMET_CF_2321_FRONT				0x0000009
+#define	COMET_CF_2321_BACK				0x000000a
+#define	COMET_CF_232_FRONT_OFF				0x000000b
+#define	COMET_CF_232_BACK_OFF				0x000000c
+#define	COMET_CF_5551_BACK				0x000000d
+#define	COMET_CF_INDEX8					0x000000e
+#define	COMET_CF_565_FRONT				0x0000010
+#define	COMET_CF_565_BACK				0x0000011
+#define	COMET_CF_422_YUV				0x0000013
+#define	COMET_CF_NUM					0x0000014
+
+/*
+ * Draw Commands for DrawLine01, DrawLine10, DrawTriangle, and Render.
+ */
+#define	COMET_DRAW_PRIM_MASK				0x000000c0
+#define	COMET_DRAW_PRIM_LINE				0x00000000
+#define	COMET_DRAW_PRIM_TRAP				0x00000040
+#define	COMET_DRAW_PRIM_POINT				0x00000080
+#define	COMET_DRAW_PRIM_RECT				0x000000c0
+#define	COMET_DRAW_TEX_ENABLE_MASK			0x00002000
+#define	COMET_DRAW_TEX_ENABLE				0x00002000
+#define	COMET_DRAW_TEX_DISABLE				0x00000000
+#define	COMET_DRAW_FOG_ENABLE_MASK			0x00004000
+#define	COMET_DRAW_FOG_ENABLE				0x00004000
+#define	COMET_DRAW_FOG_DISABLE				0x00000000
+#define	COMET_DRAW_SUB_PIX_CORR_ENABLE_MASK		0x00010000
+#define	COMET_DRAW_SPC_ENABLE				0x00010000
+#define	COMET_DRAW_SPC_DISABLE				0x00000000
+
+/*
+ * LB Format values.  Used for LBReadFormat and LBWriteFormat
+ */
+#define	COMET_LBF_DEPTH_MASK				0x00000003
+#define	COMET_LBF_DEPTH_15				0x00000003
+#define	COMET_LBF_DEPTH_16				0x00000000
+#define	COMET_LBF_STENCIL_MASK				0x0000000c
+#define	COMET_LBF_STENCIL_0				0x00000000
+#define	COMET_LBF_STENCIL_1				0x0000000c
+
+/*
+ * Byte Swap Values.
+ */
+#define	COMET_BS_ABCD					0
+#define	COMET_BS_BADC					1
+#define	COMET_BS_CDAB					2
+#define	COMET_BS_DCBA					3
+
+/*
+ * Test Comparison Functions for Depth and Stencil
+ */
+#define	COMET_CMP_NEVER					0
+#define	COMET_CMP_LT					1
+#define	COMET_CMP_EQ					2
+#define	COMET_CMP_LE					3
+#define	COMET_CMP_GT					4
+#define	COMET_CMP_NE					5
+#define	COMET_CMP_GE					6
+#define	COMET_CMP_ALWAYS					7
+
+/*
+ * Stencil/Depth Test Codes.
+ */
+#define	COMET_ACT_KEEP					0
+#define	COMET_ACT_ZERO					1
+#define	COMET_ACT_REPLACE				2
+#define	COMET_ACT_INCREMENT				3
+#define	COMET_ACT_DECREMENT				4
+#define	COMET_ACT_INVERT					5
+
+/*
+ * Texture Address Values used for TexelLUTAddress, TexelLUTID, etc.
+ * Valid/Invalid bit is set by loading a value from the TextureID register.
+ * Generally not used otherwise.  See docs for details.
+ */
+#define	COMET_TEXADDR_BASE_MASK				0x00ffffff
+#define	COMET_TEXADDR_BASE_SHIFT			0
+#define	COMET_TEXADDR_MEMORY_MASK			0x40000000
+#define	COMET_TEXADDR_SYSTEM_MEM			0x40000000
+#define	COMET_TEXADDR_LOCAL_BUFFER			0x00000000
+#define	COMET_TEXADDR_VALID_MASK			0x80000000
+#define	COMET_TEXADDR_VALID				0x00000000
+#define	COMET_TEXADDR_INVALID				0x80000000
+
+/*
+ * Texture Coordinate Wrap Mode Values.  Used in TextureReadMode.
+ */
+#define	COMET_WRAP_CLAMP				0
+#define	COMET_WRAP_REPEAT				1
+#define	COMET_WRAP_MIRROR				2
+
+/*
+ * Standard Indices for V[012]{Float, Fixed}[] registers.
+ */
+#define	COMET_IND_S					0
+#define	COMET_IND_T					1
+#define	COMET_IND_Q					2
+#define	COMET_IND_KS					3
+#define	COMET_IND_KD					4
+#define	COMET_IND_RED					5
+#define	COMET_IND_GREEN					6
+#define	COMET_IND_BLUE					7
+#define	COMET_IND_ALPHA					8
+#define	COMET_IND_F					9
+#define	COMET_IND_X					10
+#define	COMET_IND_Y					11
+#define	COMET_IND_Z					12
+#define	COMET_IND_COLOR					14
+
+/*
+ * Color boundary tests.  Used for AlphaMap*Bound registers.
+ * YUV supported using y->r, u->g, v->b.
+ */
+#define	COMET_COLOR_BOUND(_red, _green, _blue, _alpha)	\
+(((_red) & 0xff) | (((_green) & 0xff) << 8)		\
+ | (((_blue) & 0xff) << 16) | (((_alpha) & 0xff) << 24))
+
+/*
+ * Fixed-Point conversion macros
+ */
+#define	COMET_1616_TO_911(_int, _frac)			\
+((((_int) & 0x01ff) << 15) | (((_frac) & 0xffe0) >> 1))
+
+#define	COMET_1616_TO_1215(_int, _frac)			\
+((((_int) & 0x0fff) << 16) | (((_frac) & 0xfffe) >> 0))
+
+#define	COMET_1616_TO_1114(_int, _frac)			\
+((((_int) & 0x0ffe) << 16) | (((_frac) & 0xfffc) >> 0))
+
+#define	COMET_3232_TO_219(_int, _frac)			\
+((((_int) & 0x00000003) << 22) | (((_frac) & 0xffffe000) >> 10))
+
+#define	COMET_3232_TO_222(_int, _frac)			\
+((((_int) & 0x00000003) << 30) | (((_frac) & 0xfffffc00) >> 2))
+
+#define	COMET_3232_TO_227(_int, _frac)			\
+((((_int) & 0x00000003) << 30) | (((_frac) & 0xffffffe0) >> 2))
+
+#define	COMET_3232_TO_1218(_int, _frac)			\
+((((_int) & 0x00000fff) << 20) | (((_frac) & 0xffffc000) >> 12))
+
+/*
+ * Typedefs
+ */
+
+typedef unsigned int uint32;
+
+/*
+ * comet_reg_t
+ *
+ * Basic register type.
+ */
+typedef unsigned int comet_reg_t;
+
+/*
+ * comet_region0_t
+ *
+ * These are the registers, located by bar0 in the pci configuration 
+ * header, for the permedia functions.
+ *
+ */
+typedef struct {
+  uint32		reset_status;				/* 0x00000 */
+#define	COMET_RS_RESET		 				0x80000000
+
+  uint32		_pad0;
+  uint32		intEnable;				/* 0x00008 */
+  uint32		_pad1;
+  uint32		intFlags;				/* 0x00010 */
+  uint32		_pad2;
+  uint32		inFIFOSpace;				/* 0x00018 */
+  uint32		_pad3;
+  uint32		outFIFOWords;				/* 0x00020 */
+  uint32		_pad4;
+  uint32		inDMAAddress;				/* 0x00028 */
+  uint32		_pad5;
+  uint32		inDMACount;				/* 0x00030 */
+  uint32		_pad6;
+  uint32		errorFlags;				/* 0x00038 */
+#define	COMET_EF_INPUT_FIFO					0x00000001
+#define	COMET_EF_OUTPUT_FIFO					0x00000002
+#define	COMET_EF_MESSAGE					0x00000004
+#define	COMET_EF_DMA					0x00000008
+#define	COMET_EF_VIDEO_UNDERFLOW				0x00000010
+#define	COMET_EF_VIDEO_B_UNDERFLOW			0x00000020
+#define	COMET_EF_VIDEO_A_OVERFLOW			0x00000040
+#define	COMET_EF_MASTER					0x00000080
+#define	COMET_EF_OUT_DMA					0x00000100
+#define	COMET_EF_IN_DMA_OVERWRITE			0x00000200
+#define	COMET_EF_OUT_DMA_OVERWRITE			0x00000400
+#define	COMET_EF_VIDEO_A_INVALID			0x00000800
+#define	COMET_EF_VIDEO_B_INVALID			0x00001000
+
+  uint32		_pad7;
+  uint32		v_clock_ctl;			/* 0x00040 */
+#define	COMET_VCC_VIDCLKCTL_MASK			0x00000003
+#define	COMET_VCC_VIDCLKCTL_SHIFT			0
+#define	COMET_VCC_RECOVERY_MASK				0x000003fc
+#define	COMET_VCC_RECOVERY_SHIFT			2
+
+  uint32		_pad8;
+  uint32		testRegister;			/* 0x00048 */
+  uint32		_pad9;
+  uint32		aperture1;			/* 0x00050 */
+  uint32		_pad10;
+  uint32		aperture2;			/* 0x00058 */
+  uint32		_pad11;
+  uint32		dmaControl;			/* 0x00060 */
+#define	COMET_DC_IN_BYTE_SWAP_MASK			0x00000001
+#define	COMET_DC_IBS_LITTLE_END				0x00000000
+#define	COMET_DC_IBS_BIG_END				0x00000001
+#define	COMET_DC_IN_MASTER_MASK				0x00000002
+#define	COMET_DC_IM_PCI					0x00000000
+#define	COMET_DC_IM_AGP					0x00000002
+#define	COMET_DC_IN_AGP_THROTTLE_MASK			0x00000004
+#define	COMET_DC_IAT_USE_PROTOCOL			0x00000000
+#define	COMET_DC_IAT_USE_FIFO				0x00000004
+#define	COMET_DC_LONG_READ_MASK				0x00000008
+#define	COMET_DC_LONG_READ_ENABLE			0x00000008
+#define	COMET_DC_LONG_READ_DISABLE			0x00000000
+#define	COMET_DC_OUT_BYTE_SWAP_MASK			0x00000010
+#define	COMET_DC_OBS_LITTLE_END				0x00000000
+#define	COMET_DC_OBS_BIG_END				0x00000010
+#define	COMET_DC_AGP_THROTTLE_MASK			0x00000020
+#define	COMET_DC_AT_USE_PROTOCOL			0x00000000
+#define	COMET_DC_AT_USE_FIFO				0x00000020
+#define	COMET_DC_AGP_READ_PRIORITY_MASK			0x00000040
+#define	COMET_DC_ARP_LOW				0x00000000
+#define	COMET_DC_ARP_HIGH				0x00000040
+#define	COMET_DC_TEXTURE_BYTE_SWAP_MASK			0x00000180
+#define	COMET_DC_TBS_STANDARD				0x00000000
+#define	COMET_DC_TBS_BIT_31				0x00000080
+#define	COMET_DC_TBS_HALF_WORD_SWAPPED			0x00000100
+
+  uint32		_pad12;
+  uint32		fifoDisconnect;			/* 0x00068 */
+#define	COMET_FD_INPUT_FIFO_MASK			0x00000001
+#define	COMET_FD_IF_ENABLE				0x00000001
+#define	COMET_FD_IF_DISABLE				0x00000000
+#define	COMET_FD_OUTPUT_FIFO_MASK			0x00000002
+#define	COMET_FD_OF_ENABLE				0x00000002
+#define	COMET_FD_OF_DISABLE				0x00000000
+#define	COMET_FD_GP_STATE_MASK				0x80000000
+#define	COMET_FD_GP_ACTIVE				0x80000000
+#define	COMET_FD_GP_IDLE				0x00000000
+
+  uint32		_pad13;
+  uint32		chip_config;			/* 0x00070 */
+#define	COMET_CC_BASE_CLASS_MASK			0x00000001
+#define	COMET_CC_BC_STANDARD				0x00000000
+#define	COMET_CC_BC_FORCE_0				0x00000001
+#define	COMET_CC_VGA_MASK				0x00000002
+#define	COMET_CC_VGA_ENABLE				0x00000002
+#define	COMET_CC_VGA_DISABLE				0x00000000
+#define	COMET_CC_VGA_ADDRESS_MASK			0x00000004
+#define	COMET_CC_VA_FIXED				0x00000004
+#define	COMET_CC_VA_FLOADING				0x00000000
+#define	COMET_CC_DISC_WO_DATA_MASK			0x00000020
+#define	COMET_CC_DWD_ENABLE				0x00000000
+#define	COMET_CC_DWD_DISABLE				0x00000020
+#define	COMET_CC_RESET_MASK				0x00000080
+#define	COMET_CC_RESET_NORMAL				0x00000000
+#define	COMET_CC_RESET_SHORT				0x00000080
+#define	COMET_CC_AGP_SBA_MASK				0x00000100
+#define	COMET_CC_AS_ENABLE				0x00000100
+#define	COMET_CC_AS_DISABLE				0x00000000
+#define	COMET_CC_AGP_MASK				0x00000200
+#define	COMET_CC_AGP_CAPABLE				0x00000200
+#define	COMET_CC_SCLK_SELECT_MASK			0x00000c00
+#define	COMET_CC_SS_PCLK				0x00000000
+#define	COMET_CC_SS_PCLK_DIV_2				0x00000400
+#define	COMET_CC_SS_MCLK				0x00000800
+#define	COMET_CC_SS_MCLK_DIV_2				0x00000c00
+#define	COMET_CC_RESET_LOAD_MASK			0x00001000
+#define	COMET_CC_RL_RETAIN				0x00000000
+#define	COMET_CC_RL_FROM_ROM				0x00001000
+
+  uint32		_pad14[3];
+  uint32		outDMAAddress;			/* 0x00080 */
+  uint32		_pad15;
+  uint32		outDMACount;			/* 0x00088 */
+  uint32		_pad16;
+  uint32		textureBaseAddress;		/* 0x00090 */
+  uint32		_pad17[3];
+  uint32		bypassDMAAddress;		/* 0x000a0 */
+  uint32		_pad18[5];
+  uint32		bypassDMAStride;		/* 0x000b8 */
+  uint32		_pad19;
+  uint32		bypassDMAMemAddress;		/* 0x000c0 */
+  uint32		_pad20;
+  uint32		bypassDMASize;			/* 0x000c8 */
+  uint32		_pad21;
+  uint32		bypassDMAByteMask;		/* 0x000d0 */
+  uint32		_pad22;
+  uint32		bypassDMAControl;		/* 0x000d8 */
+#define	COMET_BDC_MODE_MASK				0x00000003
+#define	COMET_BDC_MODE_OFF				0x00000000
+#define	COMET_BDC_MODE_DMA				0x00000001
+#define	COMET_BDC_MODE_APERTURE_1			0x00000002
+#define	COMET_BDC_MODE_APERTURE_2			0x00000003
+#define	COMET_BDC_RESTART_MASK				0x00000004
+#define	COMET_BDC_R_DISABLE				0x00000000
+#define	COMET_BDC_R_ENABLE				0x00000004
+#define	COMET_BDC_DATA_FORMAT_MASK			0x00000038
+#define	COMET_BDC_DF_8_BIT				0x00000000
+#define	COMET_BDC_DF_16_BIT				0x00000008
+#define	COMET_BDC_DF_32_BIT				0x00000010
+#define	COMET_BDC_DF_4_BIT				0x00000018
+#define	COMET_BDC_DF_Y_YUV				0x00000020
+#define	COMET_BDC_DF_U_YUV				0x00000028
+#define	COMET_BDC_DF_V_YUV				0x00000030
+#define	COMET_BDC_PATCH_MASK				0x000000c0
+#define	COMET_BDC_PATCH_DISABLE				0x00000000
+#define	COMET_BDC_PATCH_8X8				0x00000040
+#define	COMET_BDC_PATCH_32X32				0x00000080
+#define	COMET_BDC_PP0_MASK				0x00000700
+#define	COMET_BDC_PP0_SHIFT				8
+#define	COMET_BDC_PP1_MASK				0x00003800
+#define	COMET_BDC_PP1_SHIFT				11
+#define	COMET_BDC_PP2_MASK				0x0001c000
+#define	COMET_BDC_PP2_SHIFT				14
+#define	COMET_BDC_OFFSET_X_MASK				0x003e0000
+#define	COMET_BDC_OFFSET_X_SHIFT			17
+#define	COMET_BDC_OFFSET_Y_MASK				0x07c00000
+#define	COMET_BDC_OFFSET_Y_SHIFT			22
+#define	COMET_BDC_BYTE_SWAP_MASK			0x18000000
+#define	COMET_BDC_BS_STANDARD				0x00000000
+#define	COMET_BDC_BS_BYTE				0x08000000
+#define	COMET_BDC_BS_HALF_WORD				0x10000000
+#define	COMET_BDC_MASTER_MASK				0x20000000
+#define	COMET_BDC_M_PCI					0x00000000
+#define	COMET_BDC_M_AGP					0x20000000
+
+  uint32		_pad23[3];
+  uint32		bypassDMAComplete;		/* 0x000e8 */
+#define	COMET_BDC_TEXTURE_MASK				0x00000001
+#define	COMET_BDC_T_VALID				0x00000000
+#define	COMET_BDC_T_INVALID				0x00000001
+
+  uint32		_pad24[0x3c5];
+
+  /*
+   * Memory Controller Registers
+   */
+  uint32		reboot;				/* 0x01000 */
+  uint32		_pad101[0xf];
+  uint32		memControl;			/* 0x01040 */
+#define	COMET_MC_TYPE_MASK				0x00000010
+#define	COMET_MC_T_SGRAM				0x00000000
+#define	COMET_MC_T_SDRAM				0x00000010
+
+  uint32		_pad102[0xf];
+  uint32		bootAddress;			/* 0x01080 */
+  uint32		_pad103[0xf];
+  uint32		memConfig;			/* 0x010c0 */
+#define	COMET_MC_TIMERP_MASK				0x00000007
+#define	COMET_MC_TIMERP_SHIFT				0
+#define	COMET_MC_TIMERC_MASK				0x00000038
+#define	COMET_MC_TIMERC_SHIFT				3
+#define	COMET_MC_TIMERCD_MASK				0x000001c0
+#define	COMET_MC_TIMERCD_SHIFT				6
+#define	COMET_MC_ROW_CHARGE_MASK			0x00000200
+#define	COMET_MC_RC_DISABLE				0x00000000
+#define	COMET_MC_RC_ENABLE				0x00000200
+#define	COMET_MC_TIMERAS_MIN_MASK			0x0000e000
+#define	COMET_MC_TIMERAS_MIN_SHIFT			13
+#define	COMET_MC_CAS_LATENCY_MASK			0x00010000
+#define	COMET_MC_CL_2					0x00000000
+#define	COMET_MC_CL_3					0x00010000
+#define	COMET_MC_DEAD_CYCLE_MASK			0x00020000
+#define	COMET_MC_DC_DISABLE				0x00000000
+#define	COMET_MC_DC_ENABLE				0x00020000
+#define	COMET_MC_BANK_DELAY_MASK			0x001c0000
+#define	COMET_MC_BANK_DELAY_SHIFT			18
+#define	COMET_MC_BLOCK_WRITE_1_MASK			0x00200000
+#define	COMET_MC_BW1_DISABLE				0x00000000
+#define	COMET_MC_BW1_ENABLE				0x00200000
+#define	COMET_MC_REFRESH_COUNT_MASK			0x1fc00000
+#define	COMET_MC_REFRESH_COUNT_SHIFT			22
+#define	COMET_MC_BANKS_MASK				0x60000000
+#define	COMET_MC_BANKS_SHIFT				29
+#define	COMET_MC_BURST_1_ASSUME_MASK			0x80000000
+#define	COMET_MC_B1A_DISABLE				0x00000000
+#define	COMET_MC_B1A_ENABLE				0x80000000
+
+  uint32		_pad104[0xf];
+  uint32		bypassWriteMask;		/* 0x01100 */
+  uint32		_pad105[0xf];
+  uint32		fbWriteMask;			/* 0x01140 */
+  uint32		_pad106[0xf];
+  uint32		mclkCount;			/* 0x01180 */
+
+  uint32		_pad107[0x39f];
+
+  /*
+   * FIFO Access
+   */
+  uint32		fifo[0x400];			/* 0x02000 */
+
+  /*
+   * Video Control Registers
+   */
+  uint32		screen_base;			/* 0x03000 */
+  uint32		_pad301;
+  uint32		screen_stride;			/* 0x03008 */
+  uint32		_pad302;
+  uint32		horiz_total;			/* 0x03010 */
+  uint32		_pad303;
+  uint32		horiz_gate_end;			/* 0x03018 */
+  uint32		_pad304;
+  uint32		horiz_blank_end;		/* 0x03020 */
+  uint32		_pad305;
+  uint32		horiz_sync_start;		/* 0x03028 */
+  uint32		_pad306;
+  uint32		horiz_sync_end;			/* 0x03030 */
+  uint32		_pad307;
+  uint32		vert_total;			/* 0x03038 */
+  uint32		_pad308;
+  uint32		vert_blank_end;			/* 0x03040 */
+  uint32		_pad309;
+  uint32		vert_sync_start;			/* 0x03048 */
+  uint32		_pad310;
+  uint32		vert_sync_end;			/* 0x03050 */
+  uint32		_pad311;
+  uint32		video_control;			/* 0x03058 */
+#define	COMET_VC_GP_VIDEO_MASK				0x00000001
+#define	COMET_VC_GV_DISABLE				0x00000000
+#define	COMET_VC_GV_ENABLE				0x00000001
+#define	COMET_VC_BLANK_LEVEL_MASK			0x00000002
+#define	COMET_VC_BL_ACTIVE_HIGH				0x00000000
+#define	COMET_VC_BL_ACTIVE_LOW				0x00000002
+#define	COMET_VC_LINE_DOUBLE_MASK			0x00000004
+#define	COMET_VC_LD_DISABLE				0x00000000
+#define	COMET_VC_LD_ENABLE				0x00000004
+#define	COMET_VC_HORIZ_SYNC_CTRL_MASK			0x00000018
+#define	COMET_VC_HSC_FORCE_HIGH				0x00000000
+#define	COMET_VC_HSC_ACTIVE_HIGH			0x00000008
+#define	COMET_VC_HSC_FORCE_LOW				0x00000010
+#define	COMET_VC_HSC_ACTIVE_LOW				0x00000018
+#define	COMET_VC_VERT_SYNC_CTRL_MASK			0x00000060
+#define	COMET_VC_VSC_FORCE_HIGH				0x00000000
+#define	COMET_VC_VSC_ACTIVE_HIGH			0x00000020
+#define	COMET_VC_VSC_FORCE_LOW				0x00000040
+#define	COMET_VC_VSC_ACTIVE_LOW				0x00000060
+#define	COMET_VC_BYPASS_PENDING_MASK			0x00000080
+#define	COMET_VC_BP_USING_OLD				0x00000000
+#define	COMET_VC_BP_NEW_WAITING				0x00000080
+#define	COMET_VC_GP_PENDING_MASK			0x00000100
+#define	COMET_VC_GP_USING_OLD				0x00000000
+#define	COMET_VC_GP_NEW_WAITING				0x00000100
+#define	COMET_VC_BUFFER_SWAP_CTRL_MASK			0x00000600
+#define	COMET_VC_BSC_ON_BLANK				0x00000000
+#define	COMET_VC_BSC_FREERUNNING			0x00000200
+#define	COMET_VC_BSC_AT_FRAME_RATE			0x00000400
+#define	COMET_VC_STEREO_MASK				0x00000800
+#define	COMET_VC_STEREO_DISABLE				0x00000000
+#define	COMET_VC_STEREO_ENABLE				0x00000800
+#define	COMET_VC_RIGHT_EYE_CTRL_MASK			0x00001000
+#define	COMET_VC_REC_ACTIVE_HIGH			0x00000000
+#define	COMET_VC_REC_ACTIVE_LOW				0x00001000
+#define	COMET_VC_RIGHT_FRAME_MASK			0x00002000
+#define	COMET_VC_RF_INACTIVE				0x00000000
+#define	COMET_VC_RF_ACTIVE				0x00002000
+#define	COMET_VC_BYPASS_PENDING_RIGHT_MASK		0x00004000
+#define	COMET_VC_BPR_USING_OLD				0x00000000
+#define	COMET_VC_BPR_NEW_WAITING			0x00004000
+#define	COMET_VC_GP_PENDING_RIGHT_MASK			0x00008000
+#define	COMET_VC_GPR_USING_OLD				0x00000000
+#define	COMET_VC_GPR_NEW_WAITING			0x00008000
+#define	COMET_VC_64BIT_RAMDAC_MASK			0x00010000
+#define	COMET_VC_64BIT_ENABLE				0x00010000
+#define	COMET_VC_64BIT_DISABLE				0x00000000
+
+  uint32		_pad312;
+  uint32		interrupt_line;			/* 0x03060 */
+  uint32		_pad313;
+  uint32		display_data;			/* 0x03068 */
+#define	COMET_DD_DATA_IN_MASK				0x00000001
+#define	COMET_DD_CLK_IN_MASK				0x00000002
+#define	COMET_DD_DATA_OUT_MASK				0x00000004
+#define	COMET_DD_CLK_OUT_MASK				0x00000008
+#define	COMET_DD_LATCHED_DATA_MASK			0x00000010
+#define	COMET_DD_DATA_VALID_MASK			0x00000020
+#define	COMET_DD_DDC_START_MASK				0x00000040
+#define	COMET_DD_DDC_STOP_MASK				0x00000080
+#define	COMET_DD_DDC_WAIT_MASK				0x00000100
+#define	COMET_DD_DW_ENABLE				0x00000100
+#define	COMET_DD_DW_DISABLE				0x00000000
+#define	COMET_DD_MONITOR_MASK				0x00000200
+#define	COMET_DD_M_USE_DDC				0x00000000
+#define	COMET_DD_M_USE_ID				0x00000200
+#define	COMET_DD_MONITOR_ID_IN_MASK			0x00001c00
+#define	COMET_DD_MONITOR_ID_IN_SHIFT			10
+#define	COMET_DD_MONITOR_ID_OUT_MASK			0x0000e000
+#define	COMET_DD_MONITOR_ID_OUT_SHIFT			13
+
+  uint32		_pad314;
+  uint32		line_count;			/* 0x03070 */
+  uint32		_pad315;
+  uint32		fifo_control;			/* 0x03078 */
+#define	COMET_FC_LOW_THRESH_MASK			0x0000001f
+#define	COMET_FC_LOW_THRESH_SHIFT			0
+#define	COMET_FC_HIGH_THRESH_MASK			0x00001f00
+#define	COMET_FC_HIGH_THRESH_SHIFT			8
+#define	COMET_FC_UNDERFLOW_MASK				0x00010000
+#define	COMET_FC_UNDERFLOWED				0x00010000
+
+  uint32		_pad316;
+  uint32		screen_base_right;		/* 0x03080 */
+
+  uint32		_pad317[0x3df];
+
+  /*
+   * RAMDAC Access
+   */
+  uint32		rd_index_wr_addr; 			/* 0x04000 */
+  uint32		_pad401;
+  uint32		rd_palette_data;			/* 0x04008 */
+  uint32		_pad402;
+  uint32		rd_pixel_mask;				/* 0x04010 */
+  uint32		_pad403;
+  uint32		rd_index_rd_addr;			/* 0x04018 */
+  uint32		_pad404;
+  uint32		rd_cursor_color_addr;			/* 0x04020 */
+#define	rd_p2v_index_low	rd_cursor_color_addr
+  uint32		_pad405;
+  uint32		rd_cursor_color_data;			/* 0x04028 */
+#define	rd_p2v_index_high	rd_cursor_color_data
+  uint32		_pad406;
+  uint32		rd_p2v_index_data;			/* 0x04030 */
+  uint32		_pad407;
+  uint32		rd_p2v_index_control;			/* 0x04038 */
+#define	COMET_2VIC_INCREMENT_MASK		0x00000001
+#define	COMET_2VIC_INCREMENT_ENABLE		0x00000001
+#define	COMET_2VIC_INCREMENT_DISABLE		0x00000000
+  uint32		_pad408[5];
+  uint32		rd_indexed_data;			/* 0x04050 */
+  uint32		_pad409;
+  uint32		rd_cursor_ram_data;			/* 0x04058 */
+  uint32		_pad410;
+  uint32		rd_cursor_x_lo;				/* 0x04060 */
+  uint32		_pad411;
+  uint32		rd_cursor_x_hi;				/* 0x04068 */
+  uint32		_pad412;
+  uint32		rd_cursor_y_lo;				/* 0x04070 */
+  uint32		_pad413;
+  uint32		rd_cursor_y_hi;				/* 0x04078 */
+  uint32		_pad499[0x400 - 0x1f];
+
+  /*
+   * Video Stream GP Bus
+   */
+
+  uint32		_pad549[0x200];				/* 0x05000 */
+
+  /*
+   * Video Stream Control
+   */
+
+  uint32		video_stream_config;		/* 0x05800 */
+#define	COMET_VSC_UNIT_MODE_MASK			0x00000007
+#define	COMET_VSC_UNIT_MODE_SHIFT			0
+#define	COMET_VSC_GP_BUS_MODE_MASK			0x00000008
+#define	COMET_VSC_GBM_A					0x00000000
+#define	COMET_VSC_GBM_B					0x00000008
+#define	COMET_VSC_ROM_PULSE_MASK			0x000001f0
+#define	COMET_VSC_ROM_PULSE_SHIFT			4
+#define	COMET_VSC_A_HORIZ_REF_POLARITY_MASK		0x00000200
+#define	COMET_VSC_AHRP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_AHRP_ACTIVE_HIGH			0x00000200
+#define	COMET_VSC_A_VERT_REF_POLARITY_MASK		0x00000400
+#define	COMET_VSC_AVRP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_AVRP_ACTIVE_HIGH			0x00000400
+#define	COMET_VSC_A_VERT_ACTIVE_POLARITY_MASK		0x00000800
+#define	COMET_VSC_AVAP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_AVAP_ACTIVE_HIGH			0x00000800
+#define	COMET_VSC_A_FIELD_MASK				0x00001000
+#define	COMET_VSC_AF_ENABLE				0x00001000
+#define	COMET_VSC_AF_DISABLE				0x00000000
+#define	COMET_VSC_A_FIELD_POLARITY_MASK			0x00002000
+#define	COMET_VSC_AFP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_AFP_ACTIVE_HIGH			0x00002000
+#define	COMET_VSC_A_FIELD_EDGE_MASK			0x00004000
+#define	COMET_VSC_AFE_INACTIVE				0x00000000
+#define	COMET_VSC_AFE_ACTIVE				0x00004000
+#define	COMET_VSC_A_VACTIVE_VBI_MASK			0x00008000
+#define	COMET_VSC_AVV_IGNORE				0x00000000
+#define	COMET_VSC_AVV_GATE				0x00008000
+#define	COMET_VSC_A_INTERLACE_MASK			0x00010000
+#define	COMET_VSC_AI_ENABLE				0x00010000
+#define	COMET_VSC_AI_DISABLE				0x00000000
+#define	COMET_VSC_A_REVERSE_DATA_MASK			0x00020000
+#define	COMET_VSC_ARD_ENABLE				0x00020000
+#define	COMET_VSC_ARD_DISABLE				0x00000000
+#define	COMET_VSC_B_HORIZ_REF_POLARITY_MASK		0x00040000
+#define	COMET_VSC_BHRP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_BHRP_ACTIVE_HIGH			0x00040000
+#define	COMET_VSC_B_VERT_REF_POLARITY_MASK		0x00080000
+#define	COMET_VSC_BVRP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_BVRP_ACTIVE_HIGH			0x00080000
+#define	COMET_VSC_B_VERT_ACTIVE_POLARITY_MASK		0x00100000
+#define	COMET_VSC_BVAP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_BVAP_ACTIVE_HIGH			0x00100000
+#define	COMET_VSC_B_FIELD_MASK				0x00200000
+#define	COMET_VSC_BF_ENABLE				0x00200000
+#define	COMET_VSC_BF_DISABLE				0x00000000
+#define	COMET_VSC_B_FIELD_POLARITY_MASK			0x00400000
+#define	COMET_VSC_BFP_ACTIVE_LOW			0x00000000
+#define	COMET_VSC_BFP_ACTIVE_HIGH			0x00400000
+#define	COMET_VSC_B_FIELD_EDGE_MASK			0x00800000
+#define	COMET_VSC_BFE_INACTIVE				0x00000000
+#define	COMET_VSC_BFE_ACTIVE				0x00800000
+#define	COMET_VSC_B_VACTIVE_VBI_MASK			0x01000000
+#define	COMET_VSC_BVV_IGNORE				0x00000000
+#define	COMET_VSC_BVV_GATE				0x01000000
+#define	COMET_VSC_B_INTERLACE_MASK			0x02000000
+#define	COMET_VSC_BI_ENABLE				0x02000000
+#define	COMET_VSC_BI_DISABLE				0x00000000
+#define	COMET_VSC_B_COLOR_SPACE_MASK			0x04000000
+#define	COMET_VSC_BCS_YUV				0x00000000
+#define	COMET_VSC_BCS_RGB				0x04000000
+#define	COMET_VSC_B_REVERSE_DATA_MASK			0x08000000
+#define	COMET_VSC_BRD_ENABLE				0x08000000
+#define	COMET_VSC_BRD_DISABLE				0x00000000
+#define	COMET_VSC_B_DOUBLE_EDGE_MASK			0x10000000
+#define	COMET_VSC_BDE_ENABLE				0x10000000
+#define	COMET_VSC_BDE_DISABLE				0x00000000
+
+  uint32		_pad551;
+  uint32		vsStatus;			/* 0x05808 */
+#define	COMET_VSS_GP_BUS_TIMEOUT			0x00000001
+#define	COMET_VSS_A_FIFO_OVERFLOW			0x00000100
+#define	COMET_VSS_A_FIELD_ONE0				0x00000200
+#define	COMET_VSS_A_FIELD_ONE1				0x00000400
+#define	COMET_VSS_A_FIELD_ONE2				0x00000800
+#define	COMET_VSS_A_INVALID_INTERLACE			0x00001000
+#define	COMET_VSS_B_FIFO_UNDERLOW			0x00010000
+#define	COMET_VSS_B_FIELD_ONE0				0x00020000
+#define	COMET_VSS_B_FIELD_ONE1				0x00040000
+#define	COMET_VSS_B_FIELD_ONE2				0x00080000
+#define	COMET_VSS_B_INVALID_INTERLACE			0x00100000
+
+  uint32		_pad552;
+  uint32		vsSerialBusControl;		/* 0x05810 */
+#define	COMET_VSSBC_DATA_IN_MASK			0x00000001
+#define	COMET_VSSBC_CLK_IN_MASK				0x00000002
+#define	COMET_VSSBC_DATA_OUT_MASK			0x00000004
+#define	COMET_VSSBC_CLK_OUT_MASK			0x00000008
+#define	COMET_VSSBC_LATCHED_DATA_MASK			0x00000010
+#define	COMET_VSSBC_DATA_VALID_MASK			0x00000020
+#define	COMET_VSSBC_START_MASK				0x00000040
+#define	COMET_VSSBC_STOP_MASK				0x00000080
+#define	COMET_VSSBC_WAIT_MASK				0x00000100
+#define	COMET_VSSBC_W_ENABLE				0x00000100
+#define	COMET_VSSBC_W_DISABLE				0x00000000
+
+  uint32		_pad553[0x3b];
+  uint32		vsAControl;			/* 0x05900 */
+#define	COMET_VSAC_VIDEO_MASK				0x00000001
+#define	COMET_VSAC_VIDEO_ENABLE				0x00000001
+#define	COMET_VSAC_VIDEO_DISABLE			0x00000000
+#define	COMET_VSAC_VBI_MASK				0x00000002
+#define	COMET_VSAC_VBI_ENABLE				0x00000002
+#define	COMET_VSAC_VBI_DISABLE				0x00000000
+#define	COMET_VSAC_BUFFER_CTRL_MASK			0x00000004
+#define	COMET_VSAC_BC_DOUBLE				0x00000000
+#define	COMET_VSAC_BC_TRIPLE				0x00000004
+#define	COMET_VSAC_SCALE_X_MASK				0x00000018
+#define	COMET_VSAC_SX_1TO1				0x00000000
+#define	COMET_VSAC_SX_2TO1				0x00000008
+#define	COMET_VSAC_SX_4TO1				0x00000010
+#define	COMET_VSAC_SX_8TO1				0x00000018
+#define	COMET_VSAC_SCALE_Y_MASK				0x00000060
+#define	COMET_VSAC_SY_1TO1				0x00000000
+#define	COMET_VSAC_SY_2TO1				0x00000020
+#define	COMET_VSAC_SY_4TO1				0x00000040
+#define	COMET_VSAC_SY_8TO1				0x00000060
+#define	COMET_VSAC_MIRROR_X_MASK			0x00000080
+#define	COMET_VSAC_MX_ENABLE				0x00000080
+#define	COMET_VSAC_MX_DISABLE				0x00000000
+#define	COMET_VSAC_MIRROR_Y_MASK			0x00000100
+#define	COMET_VSAC_MY_ENABLE				0x00000100
+#define	COMET_VSAC_MY_DISABLE				0x00000000
+#define	COMET_VSAC_FIELD_DISCARD_MASK			0x00000600
+#define	COMET_VSAC_FD_NONE				0x00000000
+#define	COMET_VSAC_FD_ONE				0x00000200
+#define	COMET_VSAC_FD_TWO				0x00000400
+#define	COMET_VSAC_COMBINE_FIELDS_MASK			0x00000800
+#define	COMET_VSAC_CF_ENABLE				0x00000800
+#define	COMET_VSAC_CF_DISABLE				0x00000000
+#define	COMET_VSAC_LOCK_TO_STREAM_B_MASK		0x00001000
+#define	COMET_VSAC_LTSB_ENABLE				0x00001000
+#define	COMET_VSAC_LTSB_DISABLE				0x00000000
+
+  uint32		_pad554;
+  uint32		vsAInterrupt;			/* 0x05908 */
+  uint32		_pad555;
+  uint32		vsACurrentLine;			/* 0x05910 */
+  uint32		_pad556;
+  uint32		vsAVideoAddressHost;		/* 0x05918 */
+  uint32		_pad557;
+  uint32		vsAVideoAddressIndex;		/* 0x05920 */
+  uint32		_pad558;
+  uint32		vsAVideoAddress0;		/* 0x05928 */
+  uint32		_pad559;
+  uint32		vsAVideoAddress1;		/* 0x05930 */
+  uint32		_pad560;
+  uint32		vsAVideoAddress2;		/* 0x05938 */
+  uint32		_pad561;
+  uint32		vsAVideoStride;			/* 0x05940 */
+  uint32		_pad562;
+  uint32		vsAVideoStartLine;		/* 0x05948 */
+  uint32		_pad563;
+  uint32		vsAVideoEndLine;		/* 0x05950 */
+  uint32		_pad564;
+  uint32		vsAVideoStartData;		/* 0x05958 */
+  uint32		_pad565;
+  uint32		vsAVideoEndData;		/* 0x05960 */
+  uint32		_pad566;
+  uint32		vsAVBIVideoAddressHost;		/* 0x05968 */
+  uint32		_pad567;
+  uint32		vsAVBIVideoAddressIndex;	/* 0x05970 */
+  uint32		_pad568;
+  uint32		vsAVBIVideoAddress0;		/* 0x05978 */
+  uint32		_pad569;
+  uint32		vsAVBIVideoAddress1;		/* 0x05980 */
+  uint32		_pad570;
+  uint32		vsAVBIVideoAddress2;		/* 0x05988 */
+  uint32		_pad571;
+  uint32		vsAVBIVideoStride;		/* 0x05990 */
+  uint32		_pad572;
+  uint32		vsAVBIVideoStartLine;		/* 0x05998 */
+  uint32		_pad573;
+  uint32		vsAVBIVideoEndLine;		/* 0x059a0 */
+  uint32		_pad574;
+  uint32		vsAVBIVideoStartData;		/* 0x059a8 */
+  uint32		_pad575;
+  uint32		vsAVBIVideoEndData;		/* 0x059b0 */
+  uint32		_pad576;
+  uint32		vsAFIFOControl;			/* 0x059b8 */
+#define	COMET_VSAFC_LOW_THRESH_MASK			0x000000ff
+#define	COMET_VSAFC_LOW_THRESH_SHIFT			0
+#define	COMET_VSAFC_HIGH_THRESH_MASK			0x0000ff00
+#define	COMET_VSAFC_HIGH_THRESH_SHIFT			8
+
+  uint32		_pad577[0x11];
+  uint32		vsBControl;			/* 0x05a00 */
+#define	COMET_VSBC_VIDEO_MASK				0x00000001
+#define	COMET_VSBC_VIDEO_ENABLE				0x00000001
+#define	COMET_VSBC_VIDEO_DISABLE			0x00000000
+#define	COMET_VSBC_VBI_MASK				0x00000002
+#define	COMET_VSBC_VBI_ENABLE				0x00000002
+#define	COMET_VSBC_VBI_DISABLE				0x00000000
+#define	COMET_VSBC_BUFFER_CTRL_MASK			0x00000004
+#define	COMET_VSBC_BC_DOUBLE				0x00000000
+#define	COMET_VSBC_BC_TRIPLE				0x00000004
+#define	COMET_VSBC_COMBINE_FIELDS_MASK			0x00000008
+#define	COMET_VSBC_CF_ENABLE				0x00000008
+#define	COMET_VSBC_CF_DISABLE				0x00000000
+#define	COMET_VSBC_COLOR_FORMAT_MASK			0x000001f0
+#define	COMET_CF_TO_VSBC_CF(_cf)			((_cf) << 4)
+#define	COMET_VSBC_CF_TO_CF(_vsbccf)	\
+  (((_vsbccf) & COMET_VSBC_COLOR_FORMAT_MASK) >> 4)
+#define	COMET_VSBC_PIXEL_SIZE_MASK			0x00000600
+#define	COMET_VSBC_PS_8BIT				0x00000000
+#define	COMET_VSBC_PS_16BIT				0x00000200
+#define	COMET_VSBC_PS_32BIT				0x00000400
+#define	COMET_VSBC_RGB_ORDER_MASK			0x00000800
+#define	COMET_VSBC_RO_BGR				0x00000000
+#define	COMET_VSBC_RO_RGB				0x00000800
+#define	COMET_VSBC_GAMMA_MASK				0x00001000
+#define	COMET_VSBC_GAMMA_ENABLE				0x00001000
+#define	COMET_VSBC_GAMMA_DISABLE			0x00000000
+#define	COMET_VSBC_LOCK_TO_STREAM_A_MASK		0x00002000
+#define	COMET_VSBC_LTSA_ENABLE				0x00002000
+#define	COMET_VSBC_LTSA_DISABLE				0x00000000
+
+  uint32		_pad578;
+  uint32		vsBInterrupt;			/* 0x05a08 */
+  uint32		_pad579;
+  uint32		vsBCurrentLine;			/* 0x05a10 */
+  uint32		_pad580;
+  uint32		vsBVideoAddressHost;		/* 0x05a18 */
+  uint32		_pad581;
+  uint32		vsBVideoAddressIndex;		/* 0x05a20 */
+  uint32		_pad582;
+  uint32		vsBVideoAddress0;		/* 0x05a28 */
+  uint32		_pad583;
+  uint32		vsBVideoAddress1;		/* 0x05a30 */
+  uint32		_pad584;
+  uint32		vsBVideoAddress2;		/* 0x05a38 */
+  uint32		_pad585;
+  uint32		vsBVideoStride;			/* 0x05a40 */
+  uint32		_pad586;
+  uint32		vsBVideoStartLine;		/* 0x05a48 */
+  uint32		_pad587;
+  uint32		vsBVideoEndLine;		/* 0x05a50 */
+  uint32		_pad588;
+  uint32		vsBVideoStartData;		/* 0x05a58 */
+  uint32		_pad589;
+  uint32		vsBVideoEndData;		/* 0x05a60 */
+  uint32		_pad590;
+  uint32		vsBVBIVideoAddressHost;		/* 0x05a68 */
+  uint32		_pad591;
+  uint32		vsBVBIVideoAddressIndex;	/* 0x05a70 */
+  uint32		_pad592;
+  uint32		vsBVBIVideoAddress0;		/* 0x05a78 */
+  uint32		_pad593;
+  uint32		vsBVBIVideoAddress1;		/* 0x05a80 */
+  uint32		_pad594;
+  uint32		vsBVBIVideoAddress2;		/* 0x05a88 */
+  uint32		_pad595;
+  uint32		vsBVBIVideoStride;		/* 0x05a90 */
+  uint32		_pad596;
+  uint32		vsBVBIVideoStartLine;		/* 0x05a98 */
+  uint32		_pad597;
+  uint32		vsBVBIVideoEndLine;		/* 0x05aa0 */
+  uint32		_pad598;
+  uint32		vsBVBIVideoStartData;		/* 0x05aa8 */
+  uint32		_pad598a;
+  uint32		vsBVBIVideoEndData;		/* 0x05ab0 */
+  uint32		_pad598b;
+  uint32		vsBFIFOControl;			/* 0x05ab8 */
+#define	COMET_VSBFC_LOW_THRESH_MASK			0x000000ff
+#define	COMET_VSBFC_LOW_THRESH_SHIFT			0
+#define	COMET_VSBFC_HIGH_THRESH_MASK			0x0000ff00
+#define	COMET_VSBFC_HIGH_THRESH_SHIFT			8
+
+  uint32		_pad599[0x151];
+
+  /*
+   * VGA Control
+   */
+
+  uint32		vgaMemSpace[0x400];
+
+#define VGA_REG_ADDR	 				0x03c4
+#define VGA_REG_DATA 					0x03c5
+
+#define VGA_SR_RESET                                    0x0
+#define VGA_CONTROL_REG_INDEX				0x05
+#define VGA_DISPLAY_ENABLE				0x08
+
+  /*
+   * Reserved
+   */
+
+  uint32		_pad799[0x400];
+
+  /*
+   * GP Registers
+   */
+  uint32		startXDom;			/* 0x08000 */
+  uint32		_pad800;
+  uint32		dXDom;				/* 0x08008 */
+  uint32		_pad801;
+  uint32		startXSub;			/* 0x08010 */
+  uint32		_pad802;
+  uint32		dXSub;				/* 0x08018 */
+  uint32		_pad803;
+  uint32		startY;				/* 0x08020 */
+  uint32		_pad804;
+  uint32		dY;				/* 0x08028 */
+  uint32		_pad805;
+  uint32		count;				/* 0x08030 */
+  uint32		_pad806;
+  uint32		render;				/* 0x08038 */
+#define	COMET_R_AREA_STIPPLE_ENABLE_MASK		0x00000001
+#define	COMET_R_AS_ENABLE				0x00000001
+#define	COMET_R_AS_DISABLE				0x00000000
+#define	COMET_R_FAST_FILL_ENABLE_MASK			0x00000008
+#define	COMET_R_FF_ENABLE				0x00000008
+#define	COMET_R_FF_DISABLE				0x00000000
+#define	COMET_R_SYNC_ON_BITMASK_ENABLE_MASK		0x00000800
+#define	COMET_R_SOBM_ENABLE				0x00000800
+#define	COMET_R_SOBM_DISABLE				0x00000000
+#define	COMET_R_SYNC_ON_HOSTDATA_ENABLE_MASK		0x00001000
+#define	COMET_R_SOHD_ENABLE				0x00001000
+#define	COMET_R_SOHD_DISABLE				0x00000000
+#define	COMET_R_TEX_ENABLE_MASK				0x00002000
+#define	COMET_R_TEX_ENABLE				0x00002000
+#define	COMET_R_TEX_DISABLE				0x00000000
+#define	COMET_R_FOG_ENABLE_MASK				0x00004000
+#define	COMET_R_FOG_ENABLE				0x00004000
+#define	COMET_R_FOG_DISABLE				0x00000000
+#define	COMET_R_SUB_PIX_CORR_ENABLE_MASK		0x00010000
+#define	COMET_R_SPC_ENABLE				0x00010000
+#define	COMET_R_SPC_DISABLE				0x00000000
+#define	COMET_R_REUSE_BITMASK_ENABLE_MASK		0x00020000
+#define	COMET_R_RBM_ENABLE				0x00020000
+#define	COMET_R_RBM_DISABLE				0x00000000
+#define	COMET_R_X_FILL_DIR_MASK				0x00200000
+#define	COMET_R_XFD_POS					0x00200000
+#define	COMET_R_XFD_NEG					0x00000000
+#define	COMET_R_Y_FILL_DIR_MASK				0x00400000
+#define	COMET_R_YFD_POS					0x00400000
+#define	COMET_R_YFD_NEG					0x00000000
+
+  uint32		_pad807;
+  uint32		continueNewLine;		/* 0x08040 */
+  uint32		_pad808;
+  uint32		continueNewDom;			/* 0x08048 */
+  uint32		_pad809;
+  uint32		continueNewSub;			/* 0x08050 */
+  uint32		_pad810;
+  uint32		gpContinue;			/* 0x08058 */
+  uint32		_pad811[3];
+  uint32		bitmaskPattern;			/* 0x08068 */
+  uint32		_pad812[13];
+  uint32		rasterizerMode;			/* 0x080a0 */
+#define	COMET_RM_MIRROR_BITMASK_MASK			0x00000001
+#define	COMET_RM_MBM_LSB				0x00000000
+#define	COMET_RM_MBM_MSB				0x00000001
+#define	COMET_RM_INVERT_BITMASK_MASK			0x00000002
+#define	COMET_RM_IBM_DISABLE				0x00000000
+#define	COMET_RM_IBM_ENABLE				0x00000002
+#define	COMET_RM_FRAC_ADJUST_MASK			0x0000000c
+#define	COMET_RM_FA_AS_IS				0x00000000
+#define	COMET_RM_FA_ZERO				0x00000004
+#define	COMET_RM_FA_HALF				0x00000008
+#define	COMET_RM_FA_NEAR_HALF				0x0000000c
+#define	COMET_RM_BIAS_COORD_MASK			0x00000030
+#define	COMET_RM_BC_ADD_ZERO				0x00000000
+#define	COMET_RM_BC_ADD_HALF				0x00000010
+#define	COMET_RM_BC_ADD_NEAR_HALF			0x00000020
+#define	COMET_RM_STIPPLE_MASK				0x00000040
+#define	COMET_RM_STIPPLE_TRANSPARENT			0x00000000
+#define	COMET_RM_STIPPLE_OPAQUE				0x00000040
+#define	COMET_RM_BITMASK_BYTESWAP_MASK			0x00000180
+#define	COMET_RM_BITMASK_BYTESWAP_SHIFT			7
+#define	COMET_RM_PACKING_MASK				0x00000200
+#define	COMET_RM_PACKED					0x00000000
+#define	COMET_RM_SCANLINE				0x00000200
+#define	COMET_RM_OFFSET_MASK				0x00007c00
+#define	COMET_RM_OFFSET_SHIFT				10
+#define	COMET_RM_HOSTDATA_BYTESWAP_MASK			0x00018000
+#define	COMET_RM_HOSTDATA_BYTESWAP_SHIFT		15
+#define	COMET_RM_LIMIT_CHECK_MASK			0x00040000
+#define	COMET_RM_LC_ENABLE				0x00040000
+#define	COMET_RM_LC_DISABLE				0x00000000
+#define	COMET_RM_BITMASK_INDEX_MASK			0x00080000
+#define	COMET_RM_BMI_COUNTER				0x00000000
+#define	COMET_RM_BMI_X_POS				0x00080000
+
+  uint32		_pad813;
+  uint32		yLimits;			/* 0x080a8 */
+  uint32		_pad814[3];
+  uint32		waitForCompletion;		/* 0x080b8 */
+  uint32		_pad815[3];
+  uint32		xLimits;			/* 0x080c8 */
+  uint32		_pad816;
+  uint32		rectangleOrigin;		/* 0x080d0 */
+  uint32		_pad817;
+  uint32		rectangleSize;			/* 0x080d8 */
+  uint32		_pad818[29];
+  uint32		packedDataLimits;		/* 0x08150 */
+#define	COMET_PDL_X_END_MASK				0x00000fff
+#define	COMET_PDL_X_END_SHIFT				0
+#define	COMET_PDL_X_START_MASK				0x0fff0000
+#define	COMET_PDL_X_START_SHIFT				16
+#define	COMET_PDL_REL_OFFSET_MASK			0xe0000000
+#define	COMET_PDL_REL_OFFSET_SHIFT			29
+
+  uint32		_pad819[11];
+  uint32		scissorMode;			/* 0x08180 */
+#define	COMET_SM_USER_ENABLE_MASK			0x00000001
+#define COMET_SM_USER_ENABLE_SHIFT			0
+#define	COMET_SM_USER_ENABLE				0x00000001
+#define	COMET_SM_USER_DISABLE				0x00000000
+#define	COMET_SM_SCREEN_ENABLE_MASK			0x00000002
+#define COMET_SM_SCREEN_ENABLE_SHIFT			1
+#define	COMET_SM_SCREEN_ENABLE				0x00000002
+#define	COMET_SM_SCREEN_DISABLE				0x00000000
+
+  uint32		_pad820;
+  uint32		scissorMinXY;			/* 0x08188 */
+  uint32		_pad821;
+  uint32		scissorMaxXY;			/* 0x08190 */
+  uint32		_pad822;
+  uint32		screenSize;			/* 0x08198 */
+#define COMET_SS_WIDTH_MASK				0x000007FF
+#define COMET_SS_WIDTH_SHIFT				0
+#define COMET_SS_HEIGHT_MASK				0x07FF0000
+#define COMET_SS_HEIGHT_SHIFT				16
+  uint32		_pad823;
+  uint32		areaStippleMode;		/* 0x081a0 */
+#define	COMET_ASM_ENABLE_MASK				0x00000001
+#define	COMET_ASM_ENABLE				0x00000001
+#define	COMET_ASM_DISABLE				0x00000000
+#define	COMET_ASM_XOFFSET_MASK				0x00000038
+#define	COMET_ASM_XOFFSET_SHIFT				7
+#define	COMET_ASM_YOFFSET_MASK				0x00007000
+#define	COMET_ASM_YOFFSET_SHIFT				12
+#define	COMET_ASM_PATTERN_MASK				0x00020000
+#define	COMET_ASM_PATTERN_INVERT			0x00020000
+#define	COMET_ASM_PATTERN_NORMAL			0x00000000
+#define	COMET_ASM_X_MASK				0x00040000
+#define	COMET_ASM_X_NORMAL				0x00000000
+#define	COMET_ASM_X_MIRROR				0x00040000
+#define	COMET_ASM_Y_MASK				0x00080000
+#define	COMET_ASM_Y_NORMAL				0x00000000
+#define	COMET_ASM_Y_MIRROR				0x00080000
+#define	COMET_ASM_STIPPLE_MASK				0x00100000
+#define	COMET_ASM_STIPPLE_TRANSPARENT			0x00000000
+#define	COMET_ASM_STIPPLE_OPAQUE			0x00100000
+
+  uint32		_pad824[9];
+  uint32		windowOrigin;			/* 0x081c8 */
+  uint32		_pad825[13];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			areaStipplePattern[8];		/* 0x08200 */
+  uint32		_pad826[80];
+  uint32		textureAddressMode;		/* 0x08380 */
+#define	COMET_TAM_TEX_ADDR_ENABLE_MASK			0x00000001
+#define	COMET_TAM_TA_ENABLE				0x00000001
+#define	COMET_TAM_TA_DISABLE				0x00000000
+#define	COMET_TAM_PERSP_CORR_ENABLE_MASK		0x00000002
+#define	COMET_TAM_PC_ENABLE				0x00000002
+#define	COMET_TAM_PC_DISABLE				0x00000000
+
+  uint32		_pad827;
+  uint32		sStart;				/* 0x08388 */
+  uint32		_pad828;
+  uint32		dSdx;				/* 0x08390 */
+  uint32		_pad829;
+  uint32		dSdyDom;			/* 0x08398 */
+  uint32		_pad830;
+  uint32		tStart;				/* 0x083a0 */
+  uint32		_pad831;
+  uint32		dTdx;				/* 0x083a8 */
+  uint32		_pad832;
+  uint32		dTdyDom;			/* 0x083b0 */
+  uint32		_pad833;
+  uint32		qStart;				/* 0x083b8 */
+  uint32		_pad834;
+  uint32		dQdx;				/* 0x083c0 */
+  uint32		_pad835;
+  uint32		dQdyDom;			/* 0x083c8 */
+  uint32		_pad836[61];
+  uint32		texelLUTIndex;			/* 0x084c0 */
+  uint32		_pad837;
+  uint32		texelLUTData;			/* 0x084c8 */
+  uint32		_pad838;
+  uint32		texelLUTAddress;		/* 0x084d0 */
+  uint32		_pad839;
+  uint32		texelLUTTransfer;		/* 0x084d8 */
+  uint32		_pad840[41];
+  uint32		gpTextureBaseAddress;		/* 0x08580 */
+  uint32		_pad841;
+  uint32		textureMapFormat;		/* 0x08588 */
+#define	COMET_TMF_PP0_MASK				0x00000007
+#define	COMET_TMF_PP0_SHIFT				0
+#define	COMET_TMF_PP1_MASK				0x00000038
+#define	COMET_TMF_PP1_SHIFT				3
+#define	COMET_TMF_PP2_MASK				0x000001c0
+#define	COMET_TMF_PP2_SHIFT				6
+#define	COMET_TMF_WINDOW_ORIGIN_MASK			0x00010000
+#define	COMET_TMF_WO_UPPER_LEFT				0x00000000
+#define	COMET_TMF_WO_LOWER_LEFT				0x00010000
+#define	COMET_TMF_SUBPATCH_ENABLE_MASK			0x00020000
+#define	COMET_TMF_SP_ENABLE				0x00020000
+#define	COMET_TMF_SP_DISABLE				0x00000000
+#define	COMET_TMF_TEXEL_SIZE_MASK			0x00380000
+#define	COMET_TMF_TS_8					0x00000000
+#define	COMET_TMF_TS_16					0x00080000
+#define	COMET_TMF_TS_32					0x00100000
+#define	COMET_TMF_TS_4					0x00180000
+#define	COMET_TMF_TS_24					0x00200000
+
+  uint32		_pad842;
+  uint32		textureDataFormat;		/* 0x08590 */
+#define	COMET_TDF_COLOR_FORMAT_MASK			0x0000004f
+#define	COMET_CF_TO_TDF_CF(_cf)					\
+	((((_cf) & 0x0f) << 0) | (((_cf) & 0x10) << 2))
+#define	COMET_TDF_CF_TO_CF(_tdfcf)				\
+  (((((_tdfcf) & COMET_TDF_COLOR_FORMAT_MASK) & 0x000f) >> 0)	\
+   |((((_tdfcf) & COMET_TDF_COLOR_FORMAT_MASK) & 0x0040) >> 2))
+#define	COMET_TDF_ALPHA_ENABLE_MASK			0x00000010
+#define	COMET_TDF_ALPHA_ENABLE				0x00000010
+#define	COMET_TDF_ALPHA_DISABLE				0x00000000
+#define	COMET_TDF_COLOR_ORDER_MASK			0x00000020
+#define	COMET_TDF_CO_BGR				0x00000000
+#define	COMET_TDF_CO_RGB				0x00000020
+#define	COMET_TDF_ALPHA_MAP_MASK			0x00000180
+#define	COMET_TDF_AM_NONE				0x00000000
+#define	COMET_TDF_AM_INCLUDE				0x00000080
+#define	COMET_TDF_AM_EXCLUDE				0x00000100
+#define	COMET_TDF_SPAN_FORMAT_MASK			0x00000200
+#define	COMET_TDF_SF_NORMAL				0x00000000
+#define	COMET_TDF_SF_MIRROR				0x00000200
+
+  uint32		_pad843[27];
+  uint32		texel0;				/* 0x08600 */
+  uint32		_pad844[27];
+  uint32		textureReadMode;		/* 0x08670 */
+#define	COMET_TRM_TEX_READ_ENABLE_MASK			0x00000001
+#define	COMET_TRM_TR_ENABLE				0x00000001
+#define	COMET_TRM_TR_DISABLE				0x00000000
+#define	COMET_TRM_S_WRAP_MODE_MASK			0x00000006
+#define	COMET_TRM_S_WRAP_MODE_SHIFT			1
+#define	COMET_TRM_T_WRAP_MODE_MASK			0x00000018
+#define	COMET_TRM_T_WRAP_MODE_SHIFT			3
+#define	COMET_TRM_WIDTH_LOG2_MASK			0x00001e00
+#define	COMET_TRM_WIDTH_LOG2_SHIFT			9
+#define	COMET_TRM_HEIGHT_LOG2_MASK			0x0001e000
+#define	COMET_TRM_HEIGHT_LOG2_SHIFT			13
+#define	COMET_TRM_BILINEAR_ENABLE_MASK			0x00020000
+#define	COMET_TRM_BL_ENABLE				0x00020000
+#define	COMET_TRM_BL_DISABLE				0x00000000
+#define	COMET_TRM_PACKED_DATA_MASK			0x01000000
+#define	COMET_TRM_PD_PACKED				0x01000000
+#define	COMET_TRM_PD_UNPACKED				0x00000000
+
+  uint32		_pad845;
+  uint32		texelLUTMode;			/* 0x08678 */
+#define	COMET_TLUTM_LUT_ENABLE_MASK			0x00000001
+#define	COMET_TLUTM_LUT_ENABLE				0x00000001
+#define	COMET_TLUTM_LUT_DISABLE				0x00000000
+#define	COMET_TLUTM_INDEX_MASK				0x00000002
+#define	COMET_TLUTM_I_FROM_TEX_DATA			0x00000000
+#define	COMET_TLUTM_I_FROM_FRAG_XY			0x00000002
+#define	COMET_TLUTM_OFFSET_MASK				0x000002fc
+#define	COMET_TLUTM_OFFSET_SHIFT				2
+#define	COMET_TLUTM_PIXELS_PER_ENTRY_MASK		0x00000c00
+#define	COMET_TLUTM_PPE_1				0x00000000
+#define	COMET_TLUTM_PPE_2				0x00000400
+#define	COMET_TLUTM_PPE_4				0x00000800
+
+  uint32		_pad846;
+  uint32		textureColorMode;		/* 0x08680 */
+#define	COMET_TCM_TEXTURE_ENABLE_MASK			0x00000001
+#define	COMET_TCM_TEXTURE_ENABLE			0x00000001
+#define	COMET_TCM_TEXTURE_DISABLE			0x00000000
+#define	COMET_TCM_MODE_MASK				0x0000000e
+#define	COMET_TCM_MODE_MODULATE				0x00000000
+#define	COMET_TCM_MODE_DECAL				0x00000002
+#define	COMET_TCM_MODE_COPY				0x00000006
+#define	COMET_TCM_MODE_MODULATE_HL			0x00000008
+#define	COMET_TCM_MODE_DECAL_HL				0x0000000a
+#define	COMET_TCM_MODE_COPY_HL				0x0000000e
+#define	COMET_TCM_MODE_RAMP_DECAL			0x00000002
+#define	COMET_TCM_MODE_RAMP_MODULATE			0x00000004
+#define	COMET_TCM_MODE_RAMP_HIGHLIGHT			0x00000008
+#define	COMET_TCM_TEX_TYPE_MASK				0x00000010
+#define	COMET_TCM_TT_RGB				0x00000000
+#define	COMET_TCM_TT_RAMP				0x00000010
+#define	COMET_TCM_KDDDA_ENABLE_MASK			0x00000020
+#define	COMET_TCM_KDDDA_ENABLE				0x00000020
+#define	COMET_TCM_KDDDA_DISABLE				0x00000000
+#define	COMET_TCM_KSDDA_ENABLE_MASK			0x00000040
+#define	COMET_TCM_KSDDA_ENABLE				0x00000040
+#define	COMET_TCM_KSDDA_DISABLE				0x00000000
+
+  uint32		_pad847[3];
+  uint32		fogMode;			/* 0x08690 */
+#define	COMET_FM_FOG_ENABLE_MASK			0x00000001
+#define	COMET_FM_FOG_ENABLE				0x00000001
+#define	COMET_FM_FOG_DISABLE				0x00000000
+#define	COMET_FM_FOG_TEST_MASK				0x00000004
+#define	COMET_FM_FOG_TEST_ENABLE			0x00000004
+#define	COMET_FM_FOG_TEST_DISABLE			0x00000000
+
+  uint32		_pad848;
+  uint32		fogColor;			/* 0x08698 */
+  uint32		_pad849;
+  uint32		fStart;				/* 0x086a0 */
+  uint32		_pad850;
+  uint32		dFdx;				/* 0x086a8 */
+  uint32		_pad851;
+  uint32		dFdyDom;			/* 0x086b0 */
+  uint32		_pad852[5];
+  uint32		ksStart;			/* 0x086c8 */
+  uint32		_pad853;
+  uint32		dKsdx;				/* 0x086d0 */
+  uint32		_pad854;
+  uint32		dKsdyDom;			/* 0x086d8 */
+  uint32		_pad855;
+  uint32		kdStart;			/* 0x086e0 */
+  uint32		_pad856;
+  uint32		dKddx;				/* 0x086e8 */
+  uint32		_pad857;
+  uint32		dKddyDom;			/* 0x086f0 */
+  uint32		_pad858[35];
+  uint32		rStart;				/* 0x08780 */
+  uint32		_pad859;
+  uint32		dRdx;				/* 0x08788 */
+  uint32		_pad860;
+  uint32		dRdyDom;			/* 0x08790 */
+  uint32		_pad861;
+  uint32		gStart;				/* 0x08798 */
+  uint32		_pad862;
+  uint32		dGdx;				/* 0x087a0 */
+  uint32		_pad863;
+  uint32		dGdyDom;			/* 0x087a8 */
+  uint32		_pad864;
+  uint32		bStart;				/* 0x087b0 */
+  uint32		_pad865;
+  uint32		dBdx;				/* 0x087b8 */
+  uint32		_pad866;
+  uint32		dBdyDom;			/* 0x087c0 */
+  uint32		_pad867;
+  uint32		aStart;				/* 0x087c8 */
+  uint32		_pad868[5];
+  uint32		colorDDAMode;			/* 0x087e0 */
+#define	COMET_CDDAM_ENABLE_MASK				0x00000001
+#define	COMET_CDDAM_ENABLE				0x00000001
+#define	COMET_CDDAM_DISABLE				0x00000000
+#define	COMET_CDDAM_SHADING_MASK			0x00000002
+#define	COMET_CDDAM_FLAT				0x00000000
+#define	COMET_CDDAM_GOURAUD				0x00000002
+
+  uint32		_pad869;
+  uint32		constantColor;			/* 0x087e8 */
+  uint32		_pad870;
+  uint32		color;				/* 0x087f0 */
+  uint32		_pad871[7];
+  uint32		alphaBlendMode;			/* 0x08810 */
+#define	COMET_ABM_ENABLE_MASK				0x00000001
+#define	COMET_ABM_ENABLE				0x00000001
+#define	COMET_ABM_DISABLE				0x00000000
+#define	COMET_ABM_MODE_MASK				0x000000fe
+#define	COMET_ABM_MODE_SHIFT				1
+#define	COMET_ABM_MODE_FORMAT				16
+#define	COMET_ABM_MODE_BLEND				84
+#define	COMET_ABM_MODE_PREMULT				81
+#define	COMET_ABM_COLOR_FORMAT_MASK			0x00010f00
+#define	COMET_CF_TO_ABM_CF(_cf)					\
+	((((_cf) & 0x0f) << 8) | (((_cf) & 0x10) << 12))
+#define	COMET_ABM_CF_TO_CF(_abmcf)				\
+  (((((_abmcf) & COMET_ABM_COLOR_FORMAT_MASK) & 0x0f00) >> 8)	\
+   |((((_abmcf) & COMET_ABM_COLOR_FORMAT_MASK) & 0x10000) >> 12))
+#define	COMET_ABM_ALPHA_BUFFER_MASK			0x00001000
+#define	COMET_ABM_AB_ENABLE				0x00000000
+#define	COMET_ABM_AB_DISABLE				0x00001000
+#define	COMET_ABM_COLOR_ORDER_MASK			0x00002000
+#define	COMET_ABM_CO_BGR				0x00000000
+#define	COMET_ABM_CO_RGB				0x00002000
+#define	COMET_ABM_BLEND_TYPE_MASK			0x00004000
+#define	COMET_ABM_BT_RGB				0x00000000
+#define	COMET_ABM_BT_RAMP				0x00004000
+#define	COMET_ABM_COLOR_CONV_MASK			0x00020000
+#define	COMET_ABM_CC_SCALE				0x00000000
+#define	COMET_ABM_CC_SHIFT				0x00020000
+#define	COMET_ABM_ALPHA_CONV_MASK			0x00040000
+#define	COMET_ABM_AC_SCALE				0x00000000
+#define	COMET_ABM_AC_SHIFT				0x00040000
+
+  uint32		_pad872;
+  uint32		ditherMode;			/* 0x08818 */
+#define	COMET_DIM_ENABLE_MASK				0x00000001
+#define	COMET_DIM_ENABLE				0x00000001
+#define	COMET_DIM_DISABLE				0x00000000
+#define	COMET_DIM_DITHER_ENABLE_MASK			0x00000002
+#define	COMET_DIM_DITHER_ENABLE				0x00000002
+#define	COMET_DIM_DITHER_DISABLE			0x00000000
+#define	COMET_DIM_COLOR_FORMAT_MASK			0x0001003c
+#define	COMET_CF_TO_DIM_CF(_cf)					\
+	((((_cf) & 0x0f) << 2) | (((_cf) & 0x10) << 12))
+#define	COMET_DIM_CF_TO_CF(_dimcf)				\
+  (((((_dimcf) & COMET_DIM_COLOR_FORMAT_MASK) & 0x003c) >> 2)	\
+   |((((_dimcf) & COMET_DIM_COLOR_FORMAT_MASK) & 0x10000) >> 12))
+#define	COMET_DIM_XOFFSET_MASK				0x000000c0
+#define	COMET_DIM_XOFFSET_SHIFT				6
+#define	COMET_DIM_YOFFSET_MASK				0x00000300
+#define	COMET_DIM_YOFFSET_SHIFT				8
+#define	COMET_DIM_COLOR_ORDER_MASK			0x00000400
+#define	COMET_DIM_CO_BGR				0x00000000
+#define	COMET_DIM_CO_RGB				0x00000400
+#define	COMET_DIM_METHOD_MASK				0x00000800
+#define	COMET_DIM_METHOD_ORDERED			0x00000000
+#define	COMET_DIM_METHOD_LINE				0x00000800
+#define	COMET_DIM_FORCE_ALPHA_MASK			0x00003000
+#define	COMET_DIM_FA_DISABLE				0x00000000
+#define	COMET_DIM_FA_TO_0				0x00001000
+#define	COMET_DIM_FA_TO_F8				0x00002000
+
+  uint32		_pad873;
+  uint32		fbSoftwareWriteMask;		/* 0x08820 */
+  uint32		_pad874;
+  uint32		logicalOpMode;			/* 0x08828 */
+#define	COMET_LOPM_ENABLE_MASK				0x00000001
+#define	COMET_LOPM_ENABLE				0x00000001
+#define	COMET_LOPM_DISABLE				0x00000000
+#define	COMET_LOPM_OP_MASK				0x0000001e
+#define	COMET_LOPM_OP_CLEAR				0x00000000
+#define	COMET_LOPM_OP_AND				0x00000002
+#define	COMET_LOPM_OP_AND_REVERSE			0x00000004
+#define	COMET_LOPM_OP_COPY				0x00000006
+#define	COMET_LOPM_OP_AND_INVERTED			0x00000008
+#define	COMET_LOPM_OP_NOOP				0x0000000a
+#define	COMET_LOPM_OP_XOR				0x0000000c
+#define	COMET_LOPM_OP_OR				0x0000000e
+#define	COMET_LOPM_OP_NOR				0x00000010
+#define	COMET_LOPM_OP_EQUIV				0x00000012
+#define	COMET_LOPM_OP_INVERT				0x00000014
+#define	COMET_LOPM_OP_OR_REVERSE			0x00000016
+#define	COMET_LOPM_OP_COPY_INVERT			0x00000018
+#define	COMET_LOPM_OP_OR_INVERT				0x0000001a
+#define	COMET_LOPM_OP_NAND				0x0000001c
+#define	COMET_LOPM_OP_SET				0x0000001e
+#define	COMET_LOPM_FB_WRITE_DATA_MASK			0x00000020
+#define	COMET_LOPM_FBWD_VARIABLE			0x00000000
+#define	COMET_LOPM_FBWD_CONSTANT			0x00000020
+
+  uint32		_pad875[21];
+  uint32		lbReadMode;			/* 0x08880 */
+#define	COMET_LBRM_PP0_MASK				0x00000007
+#define	COMET_LBRM_PP0_SHIFT				0
+#define	COMET_LBRM_PP1_MASK				0x00000038
+#define	COMET_LBRM_PP1_SHIFT				3
+#define	COMET_LBRM_PP2_MASK				0x000001c0
+#define	COMET_LBRM_PP2_SHIFT				6
+#define	COMET_LBRM_READ_SRC_ENABLE_MASK			0x00000200
+#define	COMET_LBRM_RS_ENABLE				0x00000200
+#define	COMET_LBRM_RS_DISABLE				0x00000000
+#define	COMET_LBRM_READ_DST_ENABLE_MASK			0x00000400
+#define	COMET_LBRM_RD_ENABLE				0x00000400
+#define	COMET_LBRM_RD_DISABLE				0x00000000
+#define	COMET_LBRM_DATA_TYPE_MASK			0x00030000
+#define	COMET_LBRM_DT_DEFAULT				0x00000000
+#define	COMET_LBRM_DT_LB_STENCIL			0x00010000
+#define	COMET_LBRM_DT_LB_DEPTH				0x00020000
+#define	COMET_LBRM_WINDOW_ORIGIN_MASK			0x00040000
+#define	COMET_LBRM_WO_UPPER_LEFT			0x00000000
+#define	COMET_LBRM_WO_LOWER_LEFT			0x00040000
+#define	COMET_LBRM_PATCH_ENABLE_MASK			0x00080000
+#define	COMET_LBRM_PATCH_ENABLE				0x00080000
+#define	COMET_LBRM_PATCH_DISABLE			0x00000000
+
+  uint32		_pad876;
+  uint32		lbReadFormat;			/* 0x08888 */
+  uint32		_pad877;
+  uint32		lbSourceOffset;			/* 0x08890 */
+  uint32		_pad878;
+  uint32		lbData;				/* 0x08898 */
+#define	COMET_LBD_DEPTH_MASK				0x0000ffff
+#define	COMET_LBD_DEPTH_SHIFT				0
+#define	COMET_LBD_STENCIL_MASK				0x00010000
+#define	COMET_LBD_STENCIL_SHIFT				16
+
+  uint32		_pad879[3];
+  uint32		lbStencil;			/* 0x088a8 */
+  uint32		_pad880;
+  uint32		lbDepth;			/* 0x088b0 */
+  uint32		_pad881;
+  uint32		lbWindowBase;			/* 0x088b8 */
+  uint32		_pad882;
+  uint32		lbWriteMode;			/* 0x088c0 */
+#define	COMET_LP_WM_ENABLE				0x00000001
+#define	COMET_LP_WM_DISABLE				0x00000000
+
+  uint32		_pad883;
+  uint32		lbWriteFormat;			/* 0x088c8 */
+  uint32		_pad884[7];
+  uint32		textureData;			/* 0x088e8 */
+  uint32		_pad885;
+  uint32		textureDownloadOffset;		/* 0x088f0 */
+  uint32		_pad886[35];
+  uint32		window;				/* 0x08980 */
+#define	COMET_W_LB_UPDATE_MASK				0x00000008
+#define	COMET_W_LBU_FORCE				0x00000008
+#define	COMET_W_LBU_NORMAL				0x00000000
+#define	COMET_W_LB_UPDATE_SRC_MASK			0x00000010
+#define	COMET_W_LBUS_LB_SRC_DATA			0x00000000
+#define	COMET_W_LBUS_REGISTERS				0x00000010
+#define	COMET_W_LB_UPDATE_ENABLE_MASK			0x00040000
+#define	COMET_W_LBU_ENABLE				0x00040000
+#define	COMET_W_LBU_DISABLE				0x00000000
+
+  uint32		_pad887;
+  uint32		stencilMode;			/* 0x08988 */
+#define	COMET_SM_STENCIL_ENABLE_MASK			0x00000001
+#define	COMET_SM_STENCIL_ENABLE				0x00000001
+#define	COMET_SM_STENCIL_DISABLE			0x00000000
+#define	COMET_SM_DEPTH_PASS_ACT_MASK			0x0000000e
+#define	COMET_SM_DEPTH_PASS_ACT_SHIFT			1
+#define	COMET_SM_DEPTH_FAIL_ACT_MASK			0x00000070
+#define	COMET_SM_DEPTH_FAIL_ACT_SHIFT			4
+#define	COMET_SM_STENCIL_FAIL_ACT_MASK			0x00000380
+#define	COMET_SM_STENCIL_FAIL_ACT_SHIFT			7
+#define	COMET_SM_CMP_MASK				0x00001c00
+#define	COMET_SM_CMP_SHIFT				10
+#define	COMET_SM_STENCIL_SRC_MASK			0x00006000
+#define	COMET_SM_SS_TEST_LOGIC				0x00000000
+#define	COMET_SM_SS_STENCIL				0x00002000
+#define	COMET_SM_SS_LB_DATA				0x00004000
+#define	COMET_SM_SS_LB_SRC_DATA				0x00006000
+
+  uint32		_pad888;
+  uint32		stencilData;			/* 0x08990 */
+  uint32		_pad889;
+  uint32		stencil;			/* 0x08998 */
+  uint32		_pad890;
+  uint32		depthMode;			/* 0x089a0 */
+#define	COMET_DM_ENABLE_MASK				0x00000001
+#define	COMET_DM_ENABLE					0x00000001
+#define	COMET_DM_DISABLE				0x00000000
+#define	COMET_DM_WRITE_ENABLE_MASK			0x00000002
+#define	COMET_DM_WRITE_ENABLE				0x00000002
+#define	COMET_DM_WRITE_DISABLE				0x00000000
+#define	COMET_DM_SOURCE_MASK				0x0000000c
+#define	COMET_DM_SOURCE_FRAGMENT			0x00000000
+#define	COMET_DM_SOURCE_LBDATA				0x00000004
+#define	COMET_DM_SOURCE_DEPTH_REG			0x00000008
+#define	COMET_DM_SOURCE_LBSOURCEDATA			0x0000000c
+#define	COMET_DM_COMPARE_MASK				0x00000070
+#define	COMET_DM_COMPARE_SHIFT				4
+
+  uint32		_pad891;
+  uint32		depth;				/* 0x089a8 */
+  uint32		_pad892;
+  uint32		zStartU;			/* 0x089b0 */
+  uint32		_pad893;
+  uint32		zStartL;			/* 0x089b8 */
+  uint32		_pad894;
+  uint32		dZdxU;				/* 0x089c0 */
+  uint32		_pad895;
+  uint32		dZdxL;				/* 0x089c8 */
+  uint32		_pad896;
+  uint32		dZdyDomU;			/* 0x089d0 */
+  uint32		_pad897;
+  uint32		dZdyDomL;			/* 0x089d8 */
+  uint32		_pad898[41];
+  uint32		fbReadMode;			/* 0x08a80 */
+#define	COMET_FBRM_PP0_MASK				0x00000007
+#define	COMET_FBRM_PP0_SHIFT				0
+#define	COMET_FBRM_PP1_MASK				0x00000038
+#define	COMET_FBRM_PP1_SHIFT				3
+#define	COMET_FBRM_PP2_MASK				0x000001c0
+#define	COMET_FBRM_PP2_SHIFT				6
+#define	COMET_FBRM_READ_SRC_ENABLE_MASK			0x00000200
+#define	COMET_FBRM_RS_ENABLE				0x00000200
+#define	COMET_FBRM_RS_DISABLE				0x00000000
+#define	COMET_FBRM_READ_DST_ENABLE_MASK			0x00000400
+#define	COMET_FBRM_RD_ENABLE				0x00000400
+#define	COMET_FBRM_RD_DISABLE				0x00000000
+#define	COMET_FBRM_DATA_TYPE_MASK			0x00008000
+#define	COMET_FBRM_DT_FB_DEFAULT			0x00000000
+#define	COMET_FBRM_DT_FB_COLOR				0x00008000
+#define	COMET_FBRM_WINDOW_ORIGIN_MASK			0x00010000
+#define	COMET_FBRM_WO_UPPER_LEFT			0x00000000
+#define	COMET_FBRM_WO_LOWER_LEFT			0x00010000
+#define	COMET_FBRM_PATCH_ENABLE_MASK			0x00040000
+#define	COMET_FBRM_PATCH_ENABLE				0x00040000
+#define	COMET_FBRM_PATCH_DISABLE			0x00000000
+#define	COMET_FBRM_PACKED_DATA_MASK			0x00080000
+#define	COMET_FBRM_PD_ENABLE				0x00080000
+#define	COMET_FBRM_PD_DISABLE				0x00000000
+#define	COMET_FBRM_REL_OFFSET_MASK			0x00700000
+#define	COMET_FBRM_REL_OFFSET_SHIFT			20
+#define	COMET_FBRM_PATCH_MODE_MASK			0x06000000
+#define	COMET_FBRM_PM_PATCH				0x00000000
+#define	COMET_FBRM_PM_SUBPATCH				0x02000000
+#define	COMET_FBRM_PM_SUBPATCHPACK			0x04000000
+
+  uint32		_pad899;
+  uint32		fbSourceOffset;			/* 0x08a88 */
+  uint32		_pad8100;
+  uint32		fbPixelOffset;			/* 0x08a90 */
+  uint32		_pad8101;
+  uint32		fbColor;			/* 0x08a98 */
+  uint32		_pad8102;
+  uint32		fbData;				/* 0x08aa0 */
+  uint32		_pad8103;
+  uint32		fbSourceData;			/* 0x08aa8 */
+  uint32		_pad8104;
+  uint32		fbWindowBase;			/* 0x08ab0 */
+  uint32		_pad8105;
+  uint32		fbWriteMode;			/* 0x08ab8 */
+#define	COMET_FBWM_WRITE_ENABLE_MASK			0x00000001
+#define	COMET_FBWM_WRITE_ENABLE				0x00000001
+#define	COMET_FBWM_WRITE_DISABLE			0x00000000
+#define	COMET_FBWM_UPLOAD_ENABLE_MASK			0x00000008
+#define	COMET_FBWM_UPLOAD_ENABLE			0x00000008
+#define	COMET_FBWM_UPLOAD_DISABLE			0x00000000
+
+  uint32		_pad8106;
+  uint32		fbHardwareWriteMask;		/* 0x08ac0 */
+  uint32		_pad8107;
+  uint32		fbBlockColor;			/* 0x08ac8 */
+  uint32		_pad8108;
+  uint32		fbReadPixel;			/* 0x08ad0 */
+#define	COMET_FBRP_8BITS				0x00000000
+#define	COMET_FBRP_16BITS				0x00000001
+#define	COMET_FBRP_32BITS				0x00000002
+#define	COMET_FBRP_24BITS				0x00000004
+
+  uint32		_pad8109[75];
+  uint32		filterMode;			/* 0x08c00 */
+  /*
+   * In the following, set passes data, 0 culls data
+   */
+#define	COMET_FM_DEPTH_TAG_FILTER_MASK			0x00000010
+#define	COMET_FM_DEPTH_DATA_FILTER_MASK			0x00000020
+#define	COMET_FM_STENCIL_TAG_FILTER_MASK		0x00000040
+#define	COMET_FM_STENCIL_DATA_FILTER_MASK		0x00000080
+#define	COMET_FM_COLOR_TAG_FILTER_MASK			0x00000100
+#define	COMET_FM_COLOR_DATA_FILTER_MASK			0x00000200
+#define	COMET_FM_SYNC_TAG_FILTER_MASK			0x00000400
+#define	COMET_FM_SYNC_DATA_FILTER_MASK			0x00000800
+#define	COMET_FM_STAT_TAG_FILTER_MASK			0x00001000
+#define	COMET_FM_STAT_DATA_FILTER_MASK			0x00002000
+
+  uint32		_pad8110;
+  uint32		statisticMode;			/* 0x08c08 */
+#define	COMET_FM_SM_STATS_ENABLE_MASK			0x00000001
+#define	COMET_FM_SM_STATS_ENABLE			0x00000001
+#define	COMET_FM_SM_STATS_DISABLE			0x00000000
+#define	COMET_FM_SM_TYPE_MASK				0x00000002
+#define	COMET_FM_SM_TYPE_PICKING			0x00000000
+#define	COMET_FM_SM_TYPE_EXTENT				0x00000002
+#define	COMET_FM_SM_ACTIVE_STEP_MASK			0x00000004
+#define	COMET_FM_SM_AS_EXCLUDE_DRAWN			0x00000000
+#define	COMET_FM_SM_AS_INCLUDE_DRAWN			0x00000004
+#define	COMET_FM_SM_PASSIVE_STEP_MASK			0x00000008
+#define	COMET_FM_SM_PS_EXCLUDE_CULLED			0x00000000
+#define	COMET_FM_SM_PS_INCLUDE_CULLED			0x00000008
+#define	COMET_FM_SM_COMPARE_FUNC_MASK			0x00000010
+#define	COMET_FM_SM_CF_INSIDE_REGION			0x00000000
+#define	COMET_FM_SM_CF_OUTSIDE_REGION			0x00000010
+#define	COMET_FM_SM_SPANS_MASK				0x00000020
+#define	COMET_FM_SM_EXCLUDE_FILLED			0x00000000
+#define	COMET_FM_SM_INCLUDE_FILLED			0x00000020
+
+  uint32		_pad8111;
+  uint32		minRegion;			/* 0x08c10 */
+  uint32		_pad8112;
+  uint32		maxRegion;			/* 0x08c18 */
+  uint32		_pad8113;
+  uint32		resetPickResult;		/* 0x08c20 */
+  uint32		_pad8114;
+  uint32		minHitRegion;			/* 0x08c28 */
+  uint32		_pad8115;
+  uint32		maxHitRegion;			/* 0x08c30 */
+  uint32		_pad8116;
+  uint32		pickResult;			/* 0x08c38 */
+#define	COMET_PR_PICK_MASK				0x00000001
+#define	COMET_PR_PICK_MISS				0x00000000
+#define	COMET_PR_PICK_HIT				0x00000001
+#define	COMET_PR_BUSY_MASK				0x00000002
+#define	COMET_PR_BUSY					0x00000002
+#define	COMET_PR_IDLE					0x00000000
+
+  uint32		_pad8117;
+#define	COMET_S_INTR_ENABLE_MASK			0x80000000
+#define	COMET_S_INTR_ENABLE				0x80000000
+#define	COMET_S_INTR_DISABLE				0x00000000
+#define	COMET_S_USER_MASK				0x7fffffff
+#define	COMET_S_USER_SHIFT				0
+
+  uint32		sync;				/* 0x08c40 */
+  uint32		_pad8118[9];
+  uint32		fbBlockColorU;			/* 0x08c68 */
+  uint32		_pad8119;
+  uint32		fbBlockColorL;			/* 0x08c70 */
+  uint32		_pad8120;
+  uint32		suspendUntilFrameBlank;		/* 0x08c78 */
+  uint32		_pad8121[65];
+  uint32		fbSourceBase;			/* 0x08d80 */
+  uint32		_pad8122;
+  uint32		fbSourceDelta;			/* 0x08d88 */
+  uint32		_pad8123;
+  uint32		config;				/* 0x08d90 */
+#define	COMET_CONFIG_FBRM_READ_SOURCE_MASK		0x00000001
+#define	COMET_CONFIG_FBRM_READ_DEST_MASK		0x00000002
+#define	COMET_CONFIG_FBRM_PACKED_DATA_MASK		0x00000004
+#define	COMET_CONFIG_FBWM_ENABLE_MASK			0x00000008
+#define	COMET_CONFIG_CDDAM_ENABLE_MASK			0x00000010
+#define	COMET_CONFIG_LOM_ENABLE_MASK			0x00000020
+#define	COMET_CONFIG_LOM_LOGIC_OP_MASK			0x000003c0
+#define	COMET_CONFIG_LOM_LOGIC_OP_SHIFT			6
+
+  uint32		_pad8124[59];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			texelLUT[16];			/* 0x08e80 */
+/*   uint32		_pad8125;   */
+  uint32		yuvMode;			/* 0x08f00 */
+#define	COMET_YUVM_CNV_ENABLE_MASK			0x00000001
+#define	COMET_YUVM_CNV_ENABLE				0x00000001
+#define	COMET_YUVM_CNV_DISABLE				0x00000000
+#define	COMET_YUVM_TEST_MODE_MASK			0x00000006
+#define	COMET_YUVM_TM_PASS_ALL				0x00000000
+#define	COMET_YUVM_TM_PASS_WITHIN			0x00000002
+#define	COMET_YUVM_TM_FAIL_WITHIN			0x00000004
+#define	COMET_YUVM_DATA_SRC_MASK			0x00000008
+#define	COMET_YUVM_DS_INPUT				0x00000000
+#define	COMET_YUVM_DS_OUTPUT				0x00000008
+#define	COMET_YUVM_REJECT_TEST_MASK			0x00000010
+#define	COMET_YUVM_RT_PLOT				0x00000000
+#define	COMET_YUVM_RT_TEXTURE				0x00000010
+#define	COMET_YUVM_TEXEL_DISABLE_UPDATE_MASK		0x00000020
+#define	COMET_YUVM_TDU_PASS				0x00000000
+#define	COMET_YUVM_TDU_REJECT				0x00000020
+
+  uint32		_pad8126;
+  uint32		chromaUpperBound;		/* 0x08f08 */
+  uint32		_pad8127;
+  uint32		chromaLowerBound;		/* 0x08f10 */
+  uint32		_pad8128;
+  uint32		alphaMapUpperBound;		/* 0x08f18 */
+  uint32		_pad8129;
+  uint32		alphaMapLowerBound;		/* 0x08f20 */
+  uint32		_pad8130[19];
+  uint32		textureID;			/* 0x08f70 */
+  uint32		_pad8131;
+  uint32		texelLUTID;			/* 0x08f78 */
+  uint32		_pad8132;
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v0Fixed[14];			/* 0x08f80 */
+  uint32		_pad8133[4];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v1Fixed[14];			/* 0x09000 */
+  uint32		_pad8134[4];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v2Fixed[14];			/* 0x09080 */
+  uint32		_pad8135[4];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v0Float[14];			/* 0x09100 */
+  uint32		_pad8136[4];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v1Float[14];			/* 0x09180 */
+  uint32		_pad8137[4];
+  struct {
+    uint32			data;
+    uint32			dummy;
+  }			v2Float[14];			/* 0x09200 */
+  uint32		_pad8138[4];
+  uint32		deltaMode;			/* 0x09280 */
+#define	COMET_DM_FOG_ENABLE_MASK			0x00000010
+#define	COMET_DM_FOG_ENABLE				0x00000010
+#define	COMET_DM_FOG_DISABLE				0x00000000
+#define	COMET_DM_TEXTURE_ENABLE_MASK			0x00000020
+#define	COMET_DM_TEXTURE_ENABLE				0x00000020
+#define	COMET_DM_TEXTURE_DISABLE			0x00000000
+#define	COMET_DM_SMOOTH_SHADING_ENABLE_MASK		0x00000040
+#define	COMET_DM_SS_ENABLE				0x00000040
+#define	COMET_DM_SS_DISABLE				0x00000000
+#define	COMET_DM_DEPTH_ENABLE_MASK			0x00000080
+#define	COMET_DM_DEPTH_ENABLE				0x00000080
+#define	COMET_DM_DEPTH_DISABLE				0x00000000
+#define	COMET_DM_SPEC_TEXTURE_ENABLE_MASK		0x00000100
+#define	COMET_DM_ST_ENABLE				0x00000100
+#define	COMET_DM_ST_DISABLE				0x00000000
+#define	COMET_DM_DIFF_TEXTURE_ENABLE_MASK		0x00000200
+#define	COMET_DM_DT_ENABLE				0x00000200
+#define	COMET_DM_DT_DISABLE				0x00000000
+#define	COMET_DM_SUB_PIX_CORR_ENABLE_MASK		0x00000400
+#define	COMET_DM_SPC_ENABLE				0x00000400
+#define	COMET_DM_SPC_DISABLE				0x00000000
+#define	COMET_DM_DIAMOND_EXIT_MASK			0x00000800
+#define	COMET_DM_DE_ENABLE				0x00000800
+#define	COMET_DM_DE_DISABLE				0x00000000
+#define	COMET_DM_DRAW_ENABLE_MASK			0x00001000
+#define	COMET_DM_DRAW_ENABLE				0x00000000
+#define	COMET_DM_DRAW_DISABLE				0x00001000
+#define	COMET_DM_CLAMP_ENABLE_MASK			0x00002000
+#define	COMET_DM_CLAMP_ENABLE				0x00002000
+#define	COMET_DM_CLAMP_DISABLE				0x00000000
+#define	COMET_DM_TEXT_PARAM_MODE_MASK			0x0000c000
+#define	COMET_DM_TPM_NORMAL				0x00000000
+#define	COMET_DM_TPM_CLAMP				0x00004000
+#define	COMET_DM_TPM_NORMALIZE				0x00008000
+#define	COMET_DM_BACKFACE_CULL_MASK			0x00020000
+#define	COMET_DM_BFC_ENABLE				0x00020000
+#define	COMET_DM_BFC_DISABLE				0x00000000
+#define	COMET_DM_COLOR_ORDER_MASK			0x00040000
+#define	COMET_DM_CO_BGR					0x00000000
+#define	COMET_DM_CO_RGB					0x00040000
+
+  uint32		_pad8139;
+  uint32		drawTriangle;			/* 0x09288 */
+  uint32		_pad8140;
+  uint32		repeatTriangle;			/* 0x09290 */
+  uint32		_pad8141;
+  uint32		drawLine01;			/* 0x09298 */
+  uint32		_pad8142;
+  uint32		drawLine10;			/* 0x092a0 */
+  uint32		_pad8143;
+  uint32		repeatLine;			/* 0x092a8 */
+  uint32		_pad99999;
+} comet_region0_t;
+
+/*
+ * External Function Declarations
+ */
+extern int
+  comet_configure();
+
+#endif /* __cplusplus */
+#endif	/* defined(_COMET_REGS_H_) */
+
