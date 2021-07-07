@@ -11,3 +11,27 @@ Likely solution is to build gcc 3.4 (without mpfr) and then gcc 4 or newer with 
 Using an older mpfr might also work.
 
 Or patch mpfr here.
+
+
+mpfr-2.4.2
+
+gcc-4.7.4/mpfr/vasprintf.c -o vasprintf.o
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c: In function 'buffer_widen':
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c:554:3: error: 'SIZE_MAX' undeclared (first use in this function)
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c:554:3: note: each undeclared identifier is reported only once for each function it appears in
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c: In function 'buffer_pad':
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c:590:3: error: 'SIZE_MAX' undeclared (first use in this function)
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c: In function 'buffer_sandwich':
+/usr/users/jay/s/gcc-4.7.4/mpfr/vasprintf.c:625:3: error: 'SIZE_MAX' undeclared (first use in this function)
+
+vasprintf.c:
+
+#if HAVE_INTTYPES_H
+# include <inttypes.h> /* for intmax_t */
+#else
+# if HAVE_STDINT_H
+#  include <stdint.h> /* for WINT_MAX in particular */
+# endif
+#endif
+
+Change the else to endif and remove last endif.

@@ -4,3 +4,44 @@ I have curl http working, but not yet curl https (sigsegv).
 git http and git https still fails.
 git local operations succeed.
 git ssh does not yet
+
+
+native cc didn't see this:
+
+configure:29928: checking size of curl_off_t
+configure:29949: gcc -c -Werror-implicit-function-declaration -O2 -Wno-system-headers -I/usr/users/jay/s/curl-7.68.0/inc
+lude  -I/usr/users/jay/include conftest.c >&5
+In file included from conftest.c:90:
+/usr/users/jay/s/curl-7.68.0/include/curl/system.h:447: error: syntax error before "curl_socklen_t"
+/usr/users/jay/s/curl-7.68.0/include/curl/system.h:447: warning: data definition has no type or storage class
+conftest.c: In function `main':
+conftest.c:95: error: duplicate case value
+conftest.c:95: error: previously used here
+configure:29949: $? = 1
+
+/usr/include/sys/socket.h
+/*
+ * This data type is needed for both UNIX98 and POSIX support.
+ */
+#if (defined (_XOPEN_SOURCE) && (_XOPEN_SOURCE>=500)) || \
+    defined(_POSIX_PII_SOCKET) || defined(__VMS)
+typedef unsigned long   socklen_t;      /* 64-bits */
+#endif
+
+Fixed with:
+CFLAGS=-D_XOPEN_SOURCE=500 .../configure...
+
+er, warning tells me to use CPPFLAGS instead.
+
+Building with native cc does not see this. I think _XOPEN_SOURCE is the reason.
+
+/usr/users/jay/s/curl-7.68.0/lib/url.c: In function `zonefrom_url':
+/usr/users/jay/s/curl-7.68.0/lib/url.c:1748: error: implicit declaration of function `if_nametoindex'
+make[2]: *** [Makefile:1702: libcurl_la-url.lo] Error 1
+
+=> #include <sys/net/if.h> ?
+Didn't work. So I pasted in manually:
+extern char *			if_indextoname	 __((unsigned int, char *));
+extern unsigned int		if_nametoindex	 __((const char *));
+extern struct if_nameindex *	if_nameindex	 __((void));
+extern void			if_freenameindex __((struct if_nameindex *));
