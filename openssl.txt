@@ -74,3 +74,8 @@ Or, I believe I saw an idiom checking for an empty value, like:
 but I didn't try that.
 
 Native cc didn't this this problem, for what it is worth.
+
+
+gcc  -I. -Iinclude -std=c9x -O3 -g -O0 -DOPENSSL_PIC -DOPENSSLDIR="\"/usr/users/jay\"" -DENGINESDIR="\"/usr/users/jay/lib/engines-1.1\"" -D_XOPEN_SOURCE=500 -D_OSF_SOURCE -DOPENSSL_USE_IPV6=0 -MMD -MF crypto/rand/rand_unix.d.tmp -MT crypto/rand/rand_unix.o -c -o crypto/rand/rand_unix.o crypto/rand/rand_unix.c
+crypto/rand/rand_unix.c:72:46: operator '&&' has no right operand
+make[1]: *** [Makefile:4549: crypto/rand/rand_unix.o] Error 1
