@@ -1,0 +1,6 @@
+Curl is used by git for http and https transport.
+
+I have curl http working, but not yet curl https (sigsegv).
+git http and git https still fails.
+git local operations succeed.
+git ssh does not yet
