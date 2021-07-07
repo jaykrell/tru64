@@ -1,3 +1,7 @@
+Probably could be nicer:
+  ./configure -prefix=$HOME CC=cc CFLAGS="-c99 -pthread -I$HOME/include" LDFLAGS="-lrt $HOME/lib/libz.a $HOME/lib/libcharset.a -L$HOME/lib -rpath $HOME/lib" -with-zlib=$HOME
+  make -j2 NO_GETTEXT=1 prefix=$HOME SHELL_PATH=`which bash` NO_ICONV=1 V=1 NO_STRTOULL=1 ZLIB_PATH=$HOME LDFLAGS="-lrt -L$HOME/lib -rpath $HOME/lib -lz"
+
 Depends on zlib?
   -I$HOME/include helps
 
@@ -7,15 +11,7 @@ Depends on GNU make?
 Out of tree builds do not work?
  It seems so.
 
-cd
-cd s
-get https://www.kernel.org/pub/software/scm/git/git-2.32.0.tar.gz
-tar xf git-2.32.0.tar.gz
-cd git-2.32.0
-./configure -prefix=$HOME CC=cc CFLAGS="-c99 -pthread -I$HOME/include"
-SHELL_PATH=`which bash`
-export SHELL_PATH
-make
+https://www.kernel.org/pub/software/scm/git/git-2.32.0.tar.gz
 
  cc: Error: run-command.c, line 839: In this statement, "NSIG" is not declared. (undeclared)
                 for (sig = 1; sig < NSIG; sig++) {
@@ -53,7 +49,7 @@ libintl_textdomain
 libintl_bindtextdomain
 libintl_bind_textdomain_codeset
 
-Rebuild with make NO_GETTEXT=1
+=> make NO_GETTEXT=1
 
 cc: Warning: builtin/sparse-checkout.c, line 491: In this declaration, the enumerator "ns_uop_add" is not unique. (dupenum)
         ADD,
@@ -68,19 +64,17 @@ arpa/nameser_compat.h:#define ADD               ns_uop_add
 
 Three cheers for namespace pollution. :(
 
-So change ADD to GIT_ADD ?
+So change ADD to GIT_ADD.
 
 Unresolved:
 strtoull
 
-So make NO_STRTOULL=1 NO_GETTEXT=1 install
-or for the impatient change strtoull in compat/strtoumax.c to strtoul, touch all other *.o
-Must be some configure problem. And strtoull is in headers.
-I didn't track this down.
+=> make NO_STRTOULL=1
+But strtoull should be present?
 
 ./t/helper/test-progress.c
 
-Change strtoull to strtoul.
+?Change strtoull to strtoul.
 
 and eh, make install fails:
 
@@ -102,4 +96,4 @@ INSTALL = /usr/users/jay/s/make-3.82/config/install-sh
 There is surely a GNU install I haven't built yet.
 
 Git is not useful without openssl.
-Openssl requires a Perl update.
+Openssl requires a Perl update, which was done.

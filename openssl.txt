@@ -79,3 +79,15 @@ Native cc didn't this this problem, for what it is worth.
 gcc  -I. -Iinclude -std=c9x -O3 -g -O0 -DOPENSSL_PIC -DOPENSSLDIR="\"/usr/users/jay\"" -DENGINESDIR="\"/usr/users/jay/lib/engines-1.1\"" -D_XOPEN_SOURCE=500 -D_OSF_SOURCE -DOPENSSL_USE_IPV6=0 -MMD -MF crypto/rand/rand_unix.d.tmp -MT crypto/rand/rand_unix.o -c -o crypto/rand/rand_unix.o crypto/rand/rand_unix.c
 crypto/rand/rand_unix.c:72:46: operator '&&' has no right operand
 make[1]: *** [Makefile:4549: crypto/rand/rand_unix.o] Error 1
+
+$ more Makefile
+
+
+PLATFORM=tru64-alpha-gcc
+OPTIONS=--prefix=/usr/users/jay --debug -DOPENSSL_USE_IPV6=0 --openssldir=/usr/users/jay -Wl,-rpath,/usr/users/jay/lib
+-g -O0 no-afalgeng no-asan no-asm no-buildtest-c++ no-crypto-mdebug no-crypto-mdebug-backtrace no-devcryptoeng no-dynam
+ic-engine no-ec_nistp_64_gcc_128 no-egd no-external-tests no-fuzz-afl no-fuzz-libfuzzer no-heartbeats no-md2 no-msan no
+-rc5 no-sctp no-shared no-ssl-trace no-ssl3 no-ssl3-method no-threads no-ubsan no-unit-test no-weak-ssl-ciphers no-zlib
+ no-zlib-dynamic
+CONFIGURE_ARGS=("--prefix=/usr/users/jay", "tru64-alpha-gcc", "--debug", "no-threads", "no-shared", "-DOPENSSL_USE_IPV6
+=0", "no-asm", "--openssldir=/usr/users/jay", "-Wl,-rpath,/usr/users/jay/lib", "-g", "-O0")

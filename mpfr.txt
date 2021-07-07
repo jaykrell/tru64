@@ -12,6 +12,8 @@ Using an older mpfr might also work.
 
 Or patch mpfr here.
 
+Or really try CFLAGS=-ieee
+Similar happened in vim and this fixed it.
 
 mpfr-2.4.2
 
