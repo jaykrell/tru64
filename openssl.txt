@@ -22,5 +22,8 @@ This is easy to fix by cd'ing and running cc -c foo.S -o foo.o a few times, like
 
 The system has IPv6 support but something in Python made me question it.
 
+There is an error about && without operand, in rand-unix.c related to _POSIX_TIMERS.
+#undef it and define it to be 1 slightly ahead of use.
+
 System vi editing the Makefile damages long lines. Avoid it.
 todo: vim
