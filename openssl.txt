@@ -29,3 +29,48 @@ There is an error about && without operand, in rand-unix.c related to _POSIX_TIM
 
 System vi editing the Makefile damages long lines. Avoid it.
 todo: vim
+
+
+
+Searching for '_POSIX_TIMERS'...
+
+C:\s\tru64\sysroot\usr\include\unistd.h(937):#define _POSIX_TIMERS
+
+1 occurrence(s) have been found.
+
+
+
+Searching for '_POSIX_TIMERS'...
+
+/*
+ * Check for the existence and support of POSIX timers.  The standard
+ * says that the _POSIX_TIMERS macro will have a positive value if they
+ * are available.
+ *
+C:\s\openssl-1.1.1f\crypto\rand\rand_unix.c(53): * says that the _POSIX_TIMERS macro will have a positive value if they
+C:\s\openssl-1.1.1f\crypto\rand\rand_unix.c(72):# if defined(_POSIX_TIMERS) && _POSIX_TIMERS > 0
+2 occurrence(s) have been found.
+
+I understand OpenSSL is in the right here, but this line fails to compile with gcc 3.4.6,
+something about no operand with the &&.
+
+Can it be changed to, a few lines ahead:
+
+/* Tru64/OSF1 defines _POSIX_TIMERS to be empty instead of positive. The support appears to be there. */
+#if defined(__osf__) && defined(_POSIX_TIMERS)
+#undef _POSIX_TIMERS
+#define _POSIX_TIMERS 1
+#endif
+
+Or, I believe I saw an idiom checking for an empty value, like:
+
+#ifdef _POSIX_TIMERS
+#if _POSIX_TIMERS+0==0
+#undef _POSIX_TIMERS
+#define _POSIX_TIMERS 1
+#endif
+#endif
+
+but I didn't try that.
+
+Native cc didn't this this problem, for what it is worth.
