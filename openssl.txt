@@ -1,0 +1,26 @@
+native cc "worked"?
+
+but trying like:
+
+PATH=$HOME/gcc-3.4.6/bin:$PATH
+# Pending building gcc 4.
+./Configuration \
+  --prefix=$HOME \
+  tru64-alpha-gcc \
+  --debug \
+  no-threads \
+  no-shared \
+  -DOPENSSL_USE_IPV6=0 \
+  no-asm \
+  --openssldir=$HOME \
+  -Wl,-rpath=$HOME/lib \
+  -g \
+  -O0
+
+When using native cc, assembly does not work, because -o does not work across directories.
+This is easy to fix by cd'ing and running cc -c foo.S -o foo.o a few times, like three.
+
+The system has IPv6 support but something in Python made me question it.
+
+System vi editing the Makefile damages long lines. Avoid it.
+todo: vim
