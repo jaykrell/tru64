@@ -1,0 +1,12 @@
+Some versions of gmp fail to compile with native cc.
+
+Something about 0/0 to produce nan being a constant that cannot be evaluated.
+
+Likely workaround:
+ Compile gcc3 (3.4.6) first, which doesn't use gmp, with native cc.
+ Then gcc4 with gmp with gcc3.
+
+In particular, the sequence native cc to old gcc to newer gcc is not uncommon.
+It is the sequence on HP-UX/HPPA where system cc is K&R only, compile gcc 3.3 with it,
+and then newer gcc. (gcc 3.3 is the newest that does not require host ANSI C compiler).
+It is also a sequence on SGI that has random old cc around.
