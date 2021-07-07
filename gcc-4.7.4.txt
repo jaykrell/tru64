@@ -1,0 +1,14 @@
+We don't clearly need gcc 4.7.4.
+It is the last release with support for Tru64 / OSF1.
+
+Build it with gcc4.
+Patch gmp (see gmp.txt)
+
+There were errors on the makeinfo commands, despite
+having installed GNU makeinfo.
+
+I edited those out of gcc/Makefile.
+
+Vi add line breaks, so then I repaired that.
+
+todo: Try installing nano or vim.
