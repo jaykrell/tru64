@@ -1,0 +1,28 @@
+informal notes
+
+I went back and built more with cc, and more static, less shared,
+and put gcc3 in its own directory.
+
+tcl kinda wants to be shared, like for expect to work
+
+I got back and forth on wanting shared or not.
+Shared offers generally size and even speed efficiency, and I later learned to use -rpath
+to mitigate some of its problems (LDFLAGS=-L$HOME/lib -rpath $HOME/lib)
+
+definitely much stuff builds with cc; maybe even tcl and python2, of course tar, make, bash, gzip, gcc3
+definitely some stuff builds with gcc3; ditto; of course gcc4
+
+However glib I think it was, part of pkg-config, "difficult" to build with cc.
+ The constructor thing. They should just use C++98 imho.
+
+Python3, maybe difficult to build with gcc3. I'm trying gcc4.
+Simple problems though, around C99 types and printf. I'm just not wanting
+to hack it up badly..like if something to suggest upstream, might as well see if gcc4
+makes it smaller change.
+
+Of course, gcc3 buildable with cc, as well as its dependencies: tar, gzip, make.
+gcc4 buildable with gcc3.
+
+openssl built
+curl build
+git works over ssh, https (unsecure: no certs yet), git (ssh?)

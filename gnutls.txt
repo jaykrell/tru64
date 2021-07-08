@@ -1,0 +1,16 @@
+nohup sh -c "$HOME/s/gnutls-3.6.16/configure -prefix=$HOME -verbose -disable-nls -disable-shared -enable-static -with-included-libtasn1 -with-nettle-mini -with-included-unistring -without-p11-kit && make -j2 V=1 && make install"
+
+/usr/users/jay/s/gnutls-3.6.16/lib/x509/../gnutls_int.h
+
+#define MAX_PVP_SEED_SIZE 256
+?
+
+/* various standard facilities require specific request to reveal */
+#define __STDC_CONSTANT_MACROS 1
+#define __STDC_LIMIT_MACROS 1
+#define __STDC_FORMAT_MACROS 1
+?
+
+I haven't gotten gnutls to build.
+I ended up finding it is "not needed".
+git works with curl + openssl + openssh
