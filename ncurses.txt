@@ -1,0 +1,9 @@
+CXXFLAGS="-c99 -I/usr/include.dtk -oldcxx"
+
+There are ignored errors in config.status.
+And non-ignored similar in other *.sh.
+When you see them, edit #! /bin/sh to be #! /bin/env bash and rerun it.
+
+That does not always work.
+Go to the line with error and remove leading parenthesis from switch of case.
+
