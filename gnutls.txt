@@ -14,3 +14,31 @@ nohup sh -c "$HOME/s/gnutls-3.6.16/configure -prefix=$HOME -verbose -disable-nls
 I haven't gotten gnutls to build.
 I ended up finding it is "not needed".
 git works with curl + openssl + openssh
+
+Coming back to this..still would be nice to have wget..
+
+  $ $HOME/s/gnutls-3.6.16/configure -prefix=$HOME -disable-nls -verbose \
+    -with-included-libtasn1 \
+    -without-p11-kit \
+    LDFLAGS="-L$HOME/lib -rpath $HOME/lib" CFLAGS=-pthread
+
+building gnutls with its included minitasn1:
+
+/usr/users/jay/s/gnutls-3.6.16/lib/minitasn1/../crypto-backend.h:31:27:
+  fatal error: gnutls/crypto.h: No such file or directory
+
+solution:
+ make install
+ Yeah, ahead of make succeeding.
+
+ Or rather... regular libtasn is easy to build..there is an error
+ in a program/example, due to getlong_opt (suggest gnulib?) but
+ make -k install installs plenty.
+
+/usr/users/jay/s/gnutls-3.6.16/lib/hash_int.c: In function '_gnutls_hash_init':
+
+This is a problem I faced/patched elsewhere in gnutls:
+  gnutls_digest_algorithm_t
+put "enum " in front of it? That does not work.
+
+Still no luck.

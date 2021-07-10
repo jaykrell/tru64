@@ -5,15 +5,36 @@ MAKEINFO=: but that hasn't worked.
 
 The error:
 
+    /usr/users/jay/s/gcc-4.7.4/gcc/doc/gcc.texi:89: warning: @tex should only appear at the beginning of a line
+    /usr/users/jay/s/gcc-4.7.4/gcc/doc/gcc.texi:209: no matching `@end tex'
+    /usr/users/jay/s/gcc-4.7.4/gcc/doc/gcc.texi:209: no matching `@end multitable'
+    /usr/users/jay/s/gcc-4.7.4/gcc/doc/gcc.texi:209: no matching `@end titlepage'
+    make[2]: *** [Makefile:4342: doc/gcc.info] Error 1
+    make[2]: *** Waiting for unfinished jobs....
+
 The workaround I have settled on is:
 
 vim gcc/Makefile:
 
 Change these lines:
+doc/%.info: %.texi
+        if [ x$(BUILD_INFO) = xinfo ]; then \
+                $(MAKEINFO) $(MAKEINFOFLAGS) -I . -I $(gcc_docdir) \
+                        -I $(gcc_docdir)/include -o $@ $<; \
+        fi
+
+# Duplicate entry to handle renaming of gccinstall.info
+doc/gccinstall.info: $(TEXI_GCCINSTALL_FILES)
+        if [ x$(BUILD_INFO) = xinfo ]; then \
+                $(MAKEINFO) $(MAKEINFOFLAGS) -I $(gcc_docdir) \
+                        -I $(gcc_docdir)/include -o $@ $<; \
+        fi
 
 to just:
- Not reproing new, but look for MAKEINFO and change the
- rules to be empty.
+doc/%.info: %.texi
+
+# Duplicate entry to handle renaming of gccinstall.info
+doc/gccinstall.info: $(TEXI_GCCINSTALL_FILES)
 
 As well,
  - System vi will insert newlines, breaking Makefiles randomly.
