@@ -1,0 +1,6 @@
+Tru64 time_t is 32bits.
+
+There is a time64_t.
+
+It would be good to fixup everything to use it.
+A tall order.
