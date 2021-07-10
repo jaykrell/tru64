@@ -21,6 +21,9 @@ Comma after rpath, not equals.
 
 When using native cc, assembly does not work, because -o does not work across directories.
 This is easy to fix by cd'ing and running cc -c foo.S -o foo.o a few times, like three.
+Or maybe I had to use to gcc.
+Or maybe run as.
+Or maybe configure with no-asm.
 
 The system has IPv6 support but something in Python made me question it.
 
