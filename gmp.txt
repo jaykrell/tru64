@@ -1,10 +1,19 @@
 Some versions of gmp fail to compile with native cc.
-
 Something about 0/0 to produce nan being a constant that cannot be evaluated.
+
+Probably the fix is CFLAGS=-ieee
+More generally I have settled on:
+
+configure CC=cc CFLAGS="-pthread -c99 -g -ieee" LDFLAGS="-L$HOME/lib -rpath $HOME/lib"
+or gcc without c99 and m on ieee:
+ configure CC=gcc CFLAGS="-pthread -g -mieee" LDFLAGS="-L$HOME/lib -rpath $HOME/lib"
 
 Likely workaround:
  Compile gcc3 (3.4.6) first, which doesn't use gmp, with native cc.
  Then gcc4 with gmp with gcc3.
+
+In particular though..different versions of gmp/mpfr/mpc have different workarounds.
+You can use what gcc/contrib/download_prerequisites provides, or strive for latest.
 
 In particular, the sequence native cc to old gcc to newer gcc is not uncommon.
 It is the sequence on HP-UX/HPPA where system cc is K&R only, compile gcc 3.3 with it,

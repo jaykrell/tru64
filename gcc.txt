@@ -1,0 +1,24 @@
+When compiling gcc, gcc-4.7.4, it common to hit makeinfo errors.
+
+I though we could just skip makeinfo, like by setting
+MAKEINFO=: but that hasn't worked.
+
+The error:
+
+The workaround I have settled on is:
+
+vim gcc/Makefile:
+
+Change these lines:
+
+to just:
+ Not reproing new, but look for MAKEINFO and change the
+ rules to be empty.
+
+As well,
+ - System vi will insert newlines, breaking Makefiles randomly.
+   Therefore build and use vim instead of vi.
+
+ - Gcc maybe got stuck in a bootstrap loop due to editing Makefiles.
+   And the last stage always fails debuginfo comparison anyway.
+   So always configure gcc with -disable-bootstrap.
