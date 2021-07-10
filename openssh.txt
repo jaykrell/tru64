@@ -1,0 +1,8 @@
+WARNING: the operating system that you are using does not
+appear to support getpeereid(), getpeerucred() or the
+SO_PEERCRED getsockopt() option. These facilities are used to
+enforce security checks to prevent unauthorised connections to
+ssh-agent. Their absence increases the risk that a malicious
+user can connect to your agent.
+
+Is there a solution?
