@@ -1,7 +1,8 @@
 We don't clearly need gcc 4.7.4.
 It is the last release with support for Tru64 / OSF1.
 
-Build it with gcc4.
+Build it with gcc3?
+ That worked, but I'm trying native cc too.
 Patch gmp (see gmp.txt)
 
 There were errors on the makeinfo commands, despite

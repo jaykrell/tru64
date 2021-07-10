@@ -26,3 +26,10 @@ gcc4 buildable with gcc3.
 openssl built
 curl build
 git works over ssh, https (unsecure: no certs yet), git (ssh?)
+
+tilting back toward dynamic:
+  native cc:
+    configure -disable-nls -prefix=/usr/users/jay CFLAGS="-c99 -pthread" LDFLAGS="-L$HOME/lib -rpath $HOME/lib"
+
+  gcc:
+    configure -disable-nls -prefix=/usr/users/jay CFLAGS="-pthread" LDFLAGS="-L$HOME/lib -rpath $HOME/lib"
